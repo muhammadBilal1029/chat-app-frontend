@@ -152,6 +152,13 @@ setCallConnected(false);
             await peerRef.current.setRemoteDescription(
                 new RTCSessionDescription(data.answer),
             );
+            for (const candidate of pendingCandidates.current) {
+    await peerRef.current.addIceCandidate(
+      new RTCIceCandidate(candidate)
+    );
+  }
+
+  pendingCandidates.current = [];
         });
       socket.on('iceCandidate', async (candidate) => {
   try {
@@ -159,6 +166,10 @@ setCallConnected(false);
 
     if (!peerRef.current) return;
      if (!peerRef.current.remoteDescription) {
+        console.log(
+    'QUEUE ICE',
+    candidate
+  );
     pendingCandidates.current.push(candidate);
     return;
   }
