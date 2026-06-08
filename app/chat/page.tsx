@@ -636,9 +636,9 @@ if (
             ),
         );
         for (const candidate of pendingCandidates.current) {
-  await peer.addIceCandidate(
-    new RTCIceCandidate(candidate)
-  );
+  if (candidate?.candidate) {
+    await peer.addIceCandidate(candidate);
+  }
 }
 
 pendingCandidates.current = [];
