@@ -717,7 +717,7 @@ ${err.message}`
             chatId: chatId,
             userId: currentUser.id,
             duration: duration,
-            callType: currentCallTypeRef.current,
+            callType: currentCallType,
         });
 
         setIsCalling(false);
@@ -1229,7 +1229,7 @@ const stopRecording = () => {
                                 })}
 
                             </div>
-                            {callType === 'video' && callConnected && (
+                            {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                     <video
                                         ref={remoteVideoRef}
