@@ -1,4 +1,4 @@
-name: Deploy Next.js to AWS EC2
+name: Deploy Frontend to AWS
 
 on:
 push:
@@ -11,9 +11,6 @@ runs-on: ubuntu-latest
 
 
 steps:
-  - name: Checkout Repository
-    uses: actions/checkout@v4
-
   - name: Deploy to EC2
     uses: appleboy/ssh-action@v1.2.0
     with:
@@ -22,7 +19,7 @@ steps:
       key: ${{ secrets.AWS_SSH_KEY }}
       port: 22
       script: |
-        cd /home/ubuntu/chat-app
+        cd /home/ubuntu/chat-app-frontend
 
         git pull origin main
 
@@ -30,7 +27,7 @@ steps:
 
         npm run build
 
-        pm2 restart chat-app || pm2 start npm --name "chat-app" -- start
+        pm2 restart chat-app-frontend
 
         pm2 save
 
