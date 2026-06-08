@@ -377,6 +377,15 @@ peer.onicegatheringstatechange = () => {
                 'ICE STATE:',
                 peer.iceConnectionState,
             );
+             console.log(
+    "LOCAL CANDIDATE:",
+    peer.localDescription
+  );
+
+  console.log(
+    "REMOTE CANDIDATE:",
+    peer.remoteDescription
+  );
         };
 
         peer.onconnectionstatechange = () => {
