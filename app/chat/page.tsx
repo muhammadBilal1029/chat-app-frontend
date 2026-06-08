@@ -52,6 +52,7 @@ export default function ChatPage() {
     const [localStream, setLocalStream] =
 
         useState<MediaStream | null>(null);
+        const pendingCandidates = useRef<any[]>([]);
     const localVideoRef = useRef<HTMLVideoElement | null>(null);
     const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
     const currentUser =
@@ -157,7 +158,10 @@ setCallConnected(false);
     console.log('RECEIVED ICE', candidate);
 
     if (!peerRef.current) return;
-
+     if (!peerRef.current.remoteDescription) {
+    pendingCandidates.current.push(candidate);
+    return;
+  }
     await peerRef.current.addIceCandidate(
       new RTCIceCandidate(candidate),
     );
@@ -601,6 +605,13 @@ if (
                 incomingCall.offer,
             ),
         );
+        for (const candidate of pendingCandidates.current) {
+  await peer.addIceCandidate(
+    new RTCIceCandidate(candidate)
+  );
+}
+
+pendingCandidates.current = [];
 
         const answer =
             await peer.createAnswer();
