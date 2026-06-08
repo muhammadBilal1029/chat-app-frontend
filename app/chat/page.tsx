@@ -329,7 +329,7 @@ setCallConnected(false);
 
 
        const peer = new RTCPeerConnection({
-        iceTransportPolicy: 'relay',
+        iceTransportPolicy: 'all',
     iceServers: [
    
     {
