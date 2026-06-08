@@ -357,6 +357,9 @@ setCallConnected(false);
             }
         };
         peer.onicecandidate = (event) => {
+            if (!event.candidate || !event.candidate.candidate) {
+  return;
+}
   if (event.candidate) {
     console.log(
       "ICE CANDIDATE:",
@@ -540,6 +543,9 @@ if (
         });
 
         peer.onicecandidate = (event) => {
+            if (!event.candidate || !event.candidate.candidate) {
+  return;
+}
             if (event.candidate) {
 
                 console.log(
@@ -606,6 +612,9 @@ if (
         });
 
         peer.onicecandidate = (event) => {
+            if (!event.candidate || !event.candidate.candidate) {
+  return;
+}
             if (event.candidate) {
 
                console.log(
