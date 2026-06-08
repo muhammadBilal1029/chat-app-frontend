@@ -9,8 +9,7 @@ jobs:
 deploy:
 runs-on: ubuntu-latest
 
-
-
+```
 steps:
   - name: Deploy to EC2
     uses: appleboy/ssh-action@v1.2.0
@@ -31,4 +30,4 @@ steps:
         pm2 restart chat-app-frontend
 
         pm2 save
-
+```
