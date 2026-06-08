@@ -604,7 +604,7 @@ peerRef.current = null;
         
     };
     const answerCall = async () => {
-       pendingCandidates.current = [];
+       
 
 peerRef.current?.close();
 peerRef.current = null;
