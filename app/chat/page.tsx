@@ -152,26 +152,21 @@ setCallConnected(false);
                 new RTCSessionDescription(data.answer),
             );
         });
-        socket.on('iceCandidate', async (data) => {
-            try {
-                console.log("RECEIVED ICE", data.candidate);
-                if (!peerRef.current) return;
+      socket.on('iceCandidate', async (candidate) => {
+  try {
+    console.log('RECEIVED ICE', candidate);
 
-                if (
-                    peerRef.current.connectionState === 'closed' ||
-                    peerRef.current.signalingState === 'closed'
-                ) {
-                    return;
-                }
+    if (!peerRef.current) return;
 
-                await peerRef.current.addIceCandidate(
-                    new RTCIceCandidate(data.candidate),
-                );
-                 console.log('ICE ADDED');
-            } catch (error) {
-                console.log('ICE candidate ignored:', error);
-            }
-        });
+    await peerRef.current.addIceCandidate(
+      new RTCIceCandidate(candidate),
+    );
+
+    console.log('ICE ADDED');
+  } catch (error) {
+    console.log('ICE candidate ignored:', error);
+  }
+});
 
         socket.on('userStatusChanged', () => {
             loadUsers();
@@ -316,10 +311,9 @@ setCallConnected(false);
 
 
        const peer = new RTCPeerConnection({
+        iceTransportPolicy: 'relay',
     iceServers: [
-    {
-      urls: "stun:turn.chat-app-1029.work.gd:3478",
-    },
+   
     {
       urls: "turn:turn.chat-app-1029.work.gd:3478?transport=udp",
       username: "bilal",
@@ -525,8 +519,10 @@ if (
             if (event.candidate) {
 
                 console.log(
-                    'SENDING CALLER ICE'
-                );
+  'SENDING CALLER ICE',
+  event.candidate.type,
+  event.candidate.candidate,
+);
 
                 socket.emit('iceCandidate', {
                     to: selectedUser.socketId,
@@ -588,9 +584,11 @@ if (
         peer.onicecandidate = (event) => {
             if (event.candidate) {
 
-                console.log(
-                    'SENDING RECEIVER ICE'
-                );
+               console.log(
+  'SENDING RECEIVER ICE',
+  event.candidate.type,
+  event.candidate.candidate,
+);
 
                 socket.emit('iceCandidate', {
                     to: incomingCall.callerSocketId,
