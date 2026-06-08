@@ -563,7 +563,15 @@ peer.onicecandidateerror = (e) => {
 
         try {
  const stream = await getMediaStream(type);
+console.log(
+  "LOCAL VIDEO TRACKS:",
+  stream.getVideoTracks().length
+);
 
+console.log(
+  "LOCAL AUDIO TRACKS:",
+  stream.getAudioTracks().length
+);
   setLocalStream(stream);
 if (
             type === 'video' &&
@@ -631,6 +639,15 @@ peerRef.current = null;
             console.log('REQUESTING CAMERA...');
   const stream =
   await getMediaStream(incomingCall.callType);
+  console.log(
+  "ANSWER VIDEO TRACKS:",
+  stream.getVideoTracks().length
+);
+
+console.log(
+  "ANSWER AUDIO TRACKS:",
+  stream.getAudioTracks().length
+);
     console.log('CAMERA SUCCESS');
 
   setLocalStream(stream);
