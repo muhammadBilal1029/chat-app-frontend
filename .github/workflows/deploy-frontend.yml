@@ -22,10 +22,12 @@ jobs:
 
                     git pull
 
-                    npm install
+                    npm ci
 
                     npm run build
 
                     pm2 restart chat-app-frontend
 
                     pm2 save
+                    
+                    pm2 status
