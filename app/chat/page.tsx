@@ -161,6 +161,17 @@ setCallConnected(false);
   pendingCandidates.current = [];
         });
      socket.on('iceCandidate', async (candidate) => {
+         console.log(
+    'RECEIVED ICE',
+    candidate.usernameFragment
+  );
+
+  console.log(
+    'REMOTE UFRAG',
+    peerRef.current?.remoteDescription?.sdp.match(
+      /a=ice-ufrag:(.*)/,
+    )?.[1]
+  );
   try {
     if (!candidate?.candidate) return;
 
@@ -188,6 +199,7 @@ setCallConnected(false);
         socket.on('callEnded', () => {
 
             setCallConnected(false);
+            pendingCandidates.current = [];
             setCallDuration(0);
             setCallStartTime(null);
             setCallStatus('Call Ended');
@@ -223,6 +235,7 @@ setCallConnected(false);
         });
         socket.on('callRejected', (data) => {
             setIsCalling(false);
+            pendingCandidates.current = [];
             setCallConnected(false);
             if (data.callType === 'video') {
     setCallStatus('Video Call Rejected');
@@ -535,6 +548,10 @@ if (
             localVideoRef.current.srcObject =
                 stream;
         }
+        pendingCandidates.current = [];
+
+peerRef.current?.close();
+peerRef.current = null;
         const peer = createPeer();
 
         peerRef.current = peer;
@@ -587,7 +604,10 @@ if (
         
     };
     const answerCall = async () => {
+       pendingCandidates.current = [];
 
+peerRef.current?.close();
+peerRef.current = null;
         try {
             console.log('REQUESTING CAMERA...');
   const stream =
@@ -677,7 +697,7 @@ ${err.message}`
 
         peerRef.current?.close();
         peerRef.current = null;
-
+         pendingCandidates.current = [];
         localStream?.getTracks().forEach(
             track => track.stop(),
         );
