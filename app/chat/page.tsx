@@ -346,6 +346,9 @@ setCallConnected(false);
        const peer = new RTCPeerConnection({
         iceTransportPolicy: 'all',
     iceServers: [
+        {
+   urls: "stun:turn.chat-app-1029.work.gd:3478"
+ },
    
     {
       urls: "turn:turn.chat-app-1029.work.gd:3478?transport=udp",
