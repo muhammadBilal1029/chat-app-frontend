@@ -178,7 +178,10 @@ setCallConnected(false);
 
     console.log('RECEIVED ICE', candidate);
 
-    if (!peerRef.current) return;
+    if (!peerRef.current) {
+         pendingCandidates.current.push(candidate);
+         return;
+    }
 
     if (!peerRef.current.remoteDescription) {
       console.log('QUEUE ICE', candidate);
