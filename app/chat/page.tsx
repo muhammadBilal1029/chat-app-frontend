@@ -153,9 +153,9 @@ setCallConnected(false);
                 new RTCSessionDescription(data.answer),
             );
             for (const candidate of pendingCandidates.current) {
-     if (candidate?.candidate) {
-    await peerRef.current.addIceCandidate(candidate);
-  }
+     await peerRef.current.addIceCandidate(
+    candidate ? new RTCIceCandidate(candidate) : null
+  );
   }
 
   pendingCandidates.current = [];
@@ -173,7 +173,7 @@ setCallConnected(false);
     )?.[1]
   );
   try {
-    if (!candidate?.candidate) return;
+   
 
     console.log('RECEIVED ICE', candidate);
 
@@ -185,7 +185,9 @@ setCallConnected(false);
       return;
     }
 
-    await peerRef.current.addIceCandidate(candidate);
+     await peerRef.current.addIceCandidate(
+    candidate ? new RTCIceCandidate(candidate) : null
+  );
 
     console.log('ICE ADDED');
   } catch (error) {
@@ -560,24 +562,12 @@ peerRef.current = null;
             peer.addTrack(track, stream);
         });
 
-        peer.onicecandidate = (event) => {
-            if (!event.candidate || !event.candidate.candidate) {
-  return;
-}
-            if (event.candidate) {
-
-                console.log(
-  'SENDING CALLER ICE',
-  event.candidate.type,
-  event.candidate.candidate,
-);
-
-                socket.emit('iceCandidate', {
-                    to: selectedUser.socketId,
-                    candidate: event.candidate,
-                });
-            }
-        };
+       peer.onicecandidate = (event) => {
+  socket.emit('iceCandidate', {
+    to: selectedUser.socketId,
+    candidate: event.candidate,
+  });
+};
 
         const offer = await peer.createOffer();
 
@@ -632,33 +622,21 @@ peerRef.current = null;
             peer.addTrack(track, stream);
         });
 
-        peer.onicecandidate = (event) => {
-            if (!event.candidate || !event.candidate.candidate) {
-  return;
-}
-            if (event.candidate) {
-
-               console.log(
-  'SENDING RECEIVER ICE',
-  event.candidate.type,
-  event.candidate.candidate,
-);
-
-                socket.emit('iceCandidate', {
-                    to: incomingCall.callerSocketId,
-                    candidate: event.candidate,
-                });
-            }
-        };
+      peer.onicecandidate = (event) => {
+  socket.emit('iceCandidate', {
+    to: incomingCall.callerSocketId,
+    candidate: event.candidate,
+  });
+};
         await peer.setRemoteDescription(
             new RTCSessionDescription(
                 incomingCall.offer,
             ),
         );
         for (const candidate of pendingCandidates.current) {
-  if (candidate?.candidate) {
-    await peer.addIceCandidate(candidate);
-  }
+   await peer.addIceCandidate(
+    candidate ? new RTCIceCandidate(candidate) : null
+  );
 }
 
 pendingCandidates.current = [];
