@@ -152,8 +152,9 @@ setCallConnected(false);
                 new RTCSessionDescription(data.answer),
             );
         });
-        socket.on('iceCandidate', async (candidate) => {
+        socket.on('iceCandidate', async (data) => {
             try {
+                console.log("RECEIVED ICE", data.candidate);
                 if (!peerRef.current) return;
 
                 if (
@@ -164,8 +165,9 @@ setCallConnected(false);
                 }
 
                 await peerRef.current.addIceCandidate(
-                    new RTCIceCandidate(candidate),
+                    new RTCIceCandidate(data.candidate),
                 );
+                 console.log('ICE ADDED');
             } catch (error) {
                 console.log('ICE candidate ignored:', error);
             }
