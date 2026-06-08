@@ -315,11 +315,20 @@ setCallConnected(false);
 
        const peer = new RTCPeerConnection({
     iceServers: [
-      {
-        urls: 'stun:stun.l.google.com:19302',
-      },
-     
-    ],
+    {
+      urls: "stun:turn.chat-app-1029.work.gd:3478",
+    },
+    {
+      urls: "turn:turn.chat-app-1029.work.gd:3478?transport=udp",
+      username: "bilal",
+      credential: "BilalTurn123",
+    },
+    {
+      urls: "turn:turn.chat-app-1029.work.gd:3478?transport=tcp",
+      username: "bilal",
+      credential: "BilalTurn123",
+    },
+  ],
   });
 
         peer.ontrack = (event) => {
