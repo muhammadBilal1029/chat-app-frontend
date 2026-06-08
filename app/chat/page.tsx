@@ -99,12 +99,49 @@ const [isRecording, setIsRecording] = useState(false);
                 socket.emit('missedCall', {
                     chatId: data.chatId,
                     callerId: data.callerId,
+                    callerSocketId: data.callerSocketId,
+                    callType: data.callType,
                 });
 
                 setIncomingCall(null);
+                setCallStatus('');
+setIsCalling(false);
+setCallConnected(false);
                 setCallStatus('Missed Call');
             }, 30000);
         });
+        socket.on(
+  'callMissed',
+  (data) => {
+    setIsCalling(false);
+    setCallConnected(false);
+
+    peerRef.current?.close();
+    peerRef.current = null;
+
+    localStream
+      ?.getTracks()
+      .forEach((track) =>
+        track.stop(),
+      );
+
+    setLocalStream(null);
+
+    setCallStatus(
+      data.callType === 'video'
+        ? 'Video Call Missed'
+        : 'Audio Call Missed',
+    );
+
+    loadMessages(
+      chatIdRef.current,
+    );
+
+    setTimeout(() => {
+      setCallStatus('');
+    }, 3000);
+  },
+);
         socket.on('callAccepted', async (data) => {
 
             setCallStatus('Call Connected');
@@ -169,13 +206,20 @@ const [isRecording, setIsRecording] = useState(false);
     socket.emit('messageSeen', {
       chatId: chatIdRef.current,
       userId: currentUser.id,
+      messageType: message.type,
     });
   }
         });
-        socket.on('callRejected', () => {
+        socket.on('callRejected', (data) => {
             setIsCalling(false);
             setCallConnected(false);
-            setCallStatus('Call Rejected');
+            if (data.callType === 'video') {
+    setCallStatus('Video Call Rejected');
+  } else {
+    setCallStatus('Audio Call Rejected');
+  }
+
+            
             loadMessages(chatId);
             peerRef.current?.close();
             peerRef.current = null;
@@ -584,6 +628,7 @@ ${err.message}`
             chatId: chatId,
             userId: currentUser.id,
             duration: duration,
+            callType: currentCallType,
         });
 
         setIsCalling(false);
@@ -704,8 +749,9 @@ const stopRecording = () => {
                                     clearTimeout(missedCallTimer.current);
                                     socket.emit('rejectCall', {
                                         to: incomingCall.callerSocketId,
-                                        chatId,
+                                       chatId: incomingCall.chatId,
                                         userId: currentUser.id,
+                                        callType: incomingCall.callType,
                                     });
 
                                     setCallStatus('Call Rejected');

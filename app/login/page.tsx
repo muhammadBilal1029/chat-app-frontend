@@ -17,10 +17,7 @@ export default function LoginPage() {
 
 const login = async () => {
     console.log('LOGIN FUNCTION STARTED');
-     alert(
-  api.defaults.baseURL);
-   alert(
- process.env.NEXT_PUBLIC_API_URL);
+     
   try {
    
     setLoading(true);
@@ -89,7 +86,7 @@ const login = async () => {
 
        <button
   onClick={() => {
-    alert('Button Clicked');
+   
     console.log('Button Clicked');
     login();
   }}
