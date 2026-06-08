@@ -343,7 +343,27 @@ useEffect(() => {
       .catch(console.error);
   }
 }, [callConnected, currentCallType]);
+useEffect(() => {
+  console.log(
+    "VIDEO SCREEN RENDERED",
+    !!remoteVideoRef.current
+  );
 
+  if (
+    remoteVideoRef.current &&
+    remoteStreamRef.current
+  ) {
+    console.log(
+      "REATTACHING VIDEO"
+    );
+
+    remoteVideoRef.current.srcObject =
+      remoteStreamRef.current;
+
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  }
+}, [callConnected, currentCallType]);
     useEffect(() => {
   if (
     currentCallType === 'video' &&
@@ -1290,6 +1310,7 @@ const stopRecording = () => {
   ref={remoteVideoRef}
   autoPlay
   playsInline
+  muted
   className="h-full w-full object-cover"
   onLoadedMetadata={() =>
     console.log("REMOTE VIDEO LOADED")
