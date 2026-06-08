@@ -153,32 +153,28 @@ setCallConnected(false);
                 new RTCSessionDescription(data.answer),
             );
             for (const candidate of pendingCandidates.current) {
-    await peerRef.current.addIceCandidate(
-      new RTCIceCandidate(candidate)
-    );
+     if (candidate?.candidate) {
+    await peerRef.current.addIceCandidate(candidate);
+  }
   }
 
   pendingCandidates.current = [];
         });
-      socket.on('iceCandidate', async (candidate) => {
-         if (!candidate?.candidate) return;
+     socket.on('iceCandidate', async (candidate) => {
   try {
+    if (!candidate?.candidate) return;
+
     console.log('RECEIVED ICE', candidate);
 
     if (!peerRef.current) return;
-     if (!peerRef.current.remoteDescription) {
-        console.log(
-    'QUEUE ICE',
-    candidate
-  );
-    pendingCandidates.current.push(candidate);
-    return;
-  }
-    try {
-    await peerRef.current?.addIceCandidate(candidate);
-  } catch (err) {
-    console.log(err);
-  }
+
+    if (!peerRef.current.remoteDescription) {
+      console.log('QUEUE ICE', candidate);
+      pendingCandidates.current.push(candidate);
+      return;
+    }
+
+    await peerRef.current.addIceCandidate(candidate);
 
     console.log('ICE ADDED');
   } catch (error) {
