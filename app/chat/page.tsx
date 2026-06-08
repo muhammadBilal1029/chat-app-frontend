@@ -363,20 +363,26 @@ setCallConnected(false);
   ],
   });
 
-        peer.ontrack = (event) => {
-            console.log('Remote stream received');
-            if (
-                currentCallType === 'video' &&
-                remoteVideoRef.current
-            ) {
-                remoteVideoRef.current.srcObject =
-                    event.streams[0];
-            }
-            if (remoteAudioRef.current) {
-                remoteAudioRef.current.srcObject =
-                    event.streams[0];
-            }
-        };
+      peer.ontrack = (event) => {
+  console.log("TRACK RECEIVED");
+  console.log(event.track.kind);
+
+  if (event.track.kind === "video") {
+    console.log("VIDEO TRACK");
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject =
+        event.streams[0];
+    }
+  }
+
+  if (event.track.kind === "audio") {
+    console.log("AUDIO TRACK");
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject =
+        event.streams[0];
+    }
+  }
+};
         peer.onicecandidate = (event) => {
             if (!event.candidate || !event.candidate.candidate) {
   return;
@@ -564,7 +570,13 @@ peerRef.current = null;
         const peer = createPeer();
 
         peerRef.current = peer;
-
+console.log(
+  "LOCAL TRACKS:",
+  stream.getTracks().map(t => ({
+    kind: t.kind,
+    enabled: t.enabled
+  }))
+);
         stream.getTracks().forEach((track) => {
             peer.addTrack(track, stream);
         });
