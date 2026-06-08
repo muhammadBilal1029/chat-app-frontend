@@ -327,6 +327,18 @@ setCallConnected(false);
         return () => clearInterval(timer);
     }, [callConnected, callStartTime]);
 
+
+    useEffect(() => {
+  if (
+    currentCallType === 'video' &&
+    callConnected &&
+    localStream &&
+    localVideoRef.current
+  ) {
+    localVideoRef.current.srcObject = localStream;
+    localVideoRef.current.play().catch(console.error);
+  }
+}, [currentCallType, callConnected, localStream]);
     const loadUsers = async () => {
         try {
             const res = await api.get('/auth/users');
@@ -364,32 +376,24 @@ setCallConnected(false);
   ],
   });
 
-     peer.ontrack = (event) => {
+    peer.ontrack = (event) => {
+  const stream = event.streams[0];
+
   console.log("TRACK KIND:", event.track.kind);
+  console.log("STREAM VIDEO TRACKS:", stream.getVideoTracks().length);
+  console.log("STREAM AUDIO TRACKS:", stream.getAudioTracks().length);
 
-  console.log(
-    "STREAM VIDEO TRACKS:",
-    event.streams[0]
-      ?.getVideoTracks()
-      .length
-  );
+  setTimeout(() => {
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = stream;
+      remoteVideoRef.current.play().catch(console.error);
+    }
 
-  console.log(
-    "STREAM AUDIO TRACKS:",
-    event.streams[0]
-      ?.getAudioTracks()
-      .length
-  );
-
-  if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject =
-      event.streams[0];
-  }
-
-  if (remoteAudioRef.current) {
-    remoteAudioRef.current.srcObject =
-      event.streams[0];
-  }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = stream;
+      remoteAudioRef.current.play().catch(console.error);
+    }
+  }, 300);
 };
         peer.onicecandidate = (event) => {
             if (!event.candidate || !event.candidate.candidate) {
