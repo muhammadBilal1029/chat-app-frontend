@@ -339,6 +339,13 @@ setCallConnected(false);
     localVideoRef.current.play().catch(console.error);
   }
 }, [currentCallType, callConnected, localStream]);
+
+useEffect(() => {
+  console.log(
+    "REMOTE VIDEO REF",
+    remoteVideoRef.current
+  );
+}, [callConnected]);
     const loadUsers = async () => {
         try {
             const res = await api.get('/auth/users');
@@ -376,24 +383,43 @@ setCallConnected(false);
   ],
   });
 
-    peer.ontrack = (event) => {
+   peer.ontrack = (event) => {
   const stream = event.streams[0];
 
-  console.log("TRACK KIND:", event.track.kind);
-  console.log("STREAM VIDEO TRACKS:", stream.getVideoTracks().length);
-  console.log("STREAM AUDIO TRACKS:", stream.getAudioTracks().length);
+  console.log(
+    "TRACK KIND:",
+    event.track.kind
+  );
 
-  setTimeout(() => {
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = stream;
-      remoteVideoRef.current.play().catch(console.error);
-    }
+  if (
+    event.track.kind === "video" &&
+    remoteVideoRef.current
+  ) {
+    console.log(
+      "SETTING REMOTE VIDEO"
+    );
 
-    if (remoteAudioRef.current) {
-      remoteAudioRef.current.srcObject = stream;
-      remoteAudioRef.current.play().catch(console.error);
-    }
-  }, 300);
+    remoteVideoRef.current.srcObject =
+      stream;
+
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  }
+
+  if (
+    event.track.kind === "audio" &&
+    remoteAudioRef.current
+  ) {
+    console.log(
+      "SETTING REMOTE AUDIO"
+    );
+
+    remoteAudioRef.current.srcObject =
+      stream;
+
+    remoteAudioRef.current.play()
+      .catch(console.error);
+  }
 };
         peer.onicecandidate = (event) => {
             if (!event.candidate || !event.candidate.candidate) {
@@ -1260,14 +1286,22 @@ const stopRecording = () => {
                             {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                     <video
-                                        ref={remoteVideoRef}
-                                        autoPlay
-                                        playsInline
-                                        className="h-full w-full object-cover"
-                                        onLoadedMetadata={() =>
-                                            console.log("REMOTE VIDEO LOADED")
-                                        }
-                                    />
+  ref={remoteVideoRef}
+  autoPlay
+  playsInline
+  muted={false}
+  className="h-full w-full object-cover"
+  onLoadedMetadata={() =>
+    console.log(
+      "REMOTE VIDEO LOADED"
+    )
+  }
+  onPlaying={() =>
+    console.log(
+      "REMOTE VIDEO PLAYING"
+    )
+  }
+/>
 
                                     <video
                                         ref={localVideoRef}
