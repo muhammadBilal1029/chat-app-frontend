@@ -364,24 +364,31 @@ setCallConnected(false);
   ],
   });
 
-      peer.ontrack = (event) => {
-  console.log("TRACK RECEIVED");
-  console.log(event.track.kind);
-console.log(event.streams);
-  if (event.track.kind === "video") {
-    console.log("VIDEO TRACK");
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject =
-        event.streams[0];
-    }
+     peer.ontrack = (event) => {
+  console.log("TRACK KIND:", event.track.kind);
+
+  console.log(
+    "STREAM VIDEO TRACKS:",
+    event.streams[0]
+      ?.getVideoTracks()
+      .length
+  );
+
+  console.log(
+    "STREAM AUDIO TRACKS:",
+    event.streams[0]
+      ?.getAudioTracks()
+      .length
+  );
+
+  if (remoteVideoRef.current) {
+    remoteVideoRef.current.srcObject =
+      event.streams[0];
   }
 
-  if (event.track.kind === "audio") {
-    console.log("AUDIO TRACK");
-    if (remoteAudioRef.current) {
-      remoteAudioRef.current.srcObject =
-        event.streams[0];
-    }
+  if (remoteAudioRef.current) {
+    remoteAudioRef.current.srcObject =
+      event.streams[0];
   }
 };
         peer.onicecandidate = (event) => {
@@ -1236,6 +1243,9 @@ const stopRecording = () => {
                                         autoPlay
                                         playsInline
                                         className="h-full w-full object-cover"
+                                        onLoadedMetadata={() =>
+                                            console.log("REMOTE VIDEO LOADED")
+                                        }
                                     />
 
                                     <video
@@ -1244,6 +1254,9 @@ const stopRecording = () => {
                                         muted
                                         playsInline
                                         className="absolute bottom-4 right-4 h-32 w-24 rounded bg-black"
+                                        onLoadedMetadata={() =>
+                                            console.log("LOCAL VIDEO LOADED")
+                                        }
                                     />
 
                                     <button
