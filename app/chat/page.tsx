@@ -61,9 +61,11 @@ export default function ChatPage() {
             : {};
     const [typingUser, setTypingUser] = useState('');
     const [callType, setCallType] = useState<'audio' | 'video'>('audio');
-    const [currentCallType,
-        setCurrentCallType] =
-        useState<'audio' | 'video'>('audio');
+    const [currentCallType, setCurrentCallType] =
+  useState<'audio' | 'video'>('audio');
+
+    const currentCallTypeRef =
+  useRef<'audio' | 'video'>('audio');
     const missedCallTimer =
         useRef<any>(null);
         const recorderRef = useRef<MediaRecorder | null>(null);
@@ -86,9 +88,8 @@ const [isRecording, setIsRecording] = useState(false);
             setCallStatus(
                 `${data.callerName} is calling you...`
             );
-            setCurrentCallType(
-                data.callType,
-            );
+            setCurrentCallType(data.callType);
+            currentCallTypeRef.current = data.callType;
             console.log('INCOMING CALL EVENT');
             console.log(data);
 
@@ -366,7 +367,7 @@ setCallConnected(false);
       peer.ontrack = (event) => {
   console.log("TRACK RECEIVED");
   console.log(event.track.kind);
-
+console.log(event.streams);
   if (event.track.kind === "video") {
     console.log("VIDEO TRACK");
     if (remoteVideoRef.current) {
@@ -546,6 +547,7 @@ peer.onicecandidateerror = (e) => {
     const callUser = async (type: 'audio' | 'video') => {
         setCallType(type);
         setCurrentCallType(type);
+        currentCallTypeRef.current = type;
         console.log("selectedUser",selectedUser)
         if (!selectedUser?.socketId) {
             alert('User offline');
@@ -715,7 +717,7 @@ ${err.message}`
             chatId: chatId,
             userId: currentUser.id,
             duration: duration,
-            callType: currentCallType,
+            callType: currentCallTypeRef.current,
         });
 
         setIsCalling(false);
@@ -1227,7 +1229,7 @@ const stopRecording = () => {
                                 })}
 
                             </div>
-                            {currentCallType === 'video' && callConnected && (
+                            {callType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                     <video
                                         ref={remoteVideoRef}
