@@ -163,7 +163,7 @@ setCallConnected(false);
      socket.on('iceCandidate', async (candidate) => {
          console.log(
     'RECEIVED ICE',
-    candidate.usernameFragment || 'END'
+    candidate?.usernameFragment || 'END'
   );
 
   console.log(
