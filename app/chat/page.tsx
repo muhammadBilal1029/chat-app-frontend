@@ -161,6 +161,7 @@ setCallConnected(false);
   pendingCandidates.current = [];
         });
       socket.on('iceCandidate', async (candidate) => {
+         if (!candidate?.candidate) return;
   try {
     console.log('RECEIVED ICE', candidate);
 
@@ -173,9 +174,11 @@ setCallConnected(false);
     pendingCandidates.current.push(candidate);
     return;
   }
-    await peerRef.current.addIceCandidate(
-      new RTCIceCandidate(candidate),
-    );
+    try {
+    await peerRef.current?.addIceCandidate(candidate);
+  } catch (err) {
+    console.log(err);
+  }
 
     console.log('ICE ADDED');
   } catch (error) {
@@ -424,7 +427,9 @@ peer.onicegatheringstatechange = () => {
                 setCallStatus('Call Failed');
             }
         };
-
+peer.onicecandidateerror = (e) => {
+  console.log("ICE ERROR", e);
+};
         peerRef.current = peer;
 
         return peer;
