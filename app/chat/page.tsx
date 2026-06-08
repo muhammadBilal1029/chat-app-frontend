@@ -564,6 +564,7 @@ peerRef.current = null;
         });
 
        peer.onicecandidate = (event) => {
+        if (!event.candidate) return;
   socket.emit('iceCandidate', {
     to: selectedUser.socketId,
     candidate: event.candidate,
@@ -624,6 +625,7 @@ peerRef.current = null;
         });
 
       peer.onicecandidate = (event) => {
+        if (!event.candidate) return;
   socket.emit('iceCandidate', {
     to: incomingCall.callerSocketId,
     candidate: event.candidate,
