@@ -72,6 +72,7 @@ export default function ChatPage() {
 const recordingStreamRef = useRef<MediaStream | null>(null);
 const recordingChunksRef = useRef<Blob[]>([]);
 const [isRecording, setIsRecording] = useState(false);
+const remoteStreamRef = useRef<MediaStream | null>(null);
     useEffect(() => {
         loadUsers();
 
@@ -326,7 +327,22 @@ setCallConnected(false);
 
         return () => clearInterval(timer);
     }, [callConnected, callStartTime]);
+useEffect(() => {
+  if (
+    callConnected &&
+    currentCallType === "video" &&
+    remoteVideoRef.current &&
+    remoteStreamRef.current
+  ) {
+    console.log("RESTORING REMOTE STREAM");
 
+    remoteVideoRef.current.srcObject =
+      remoteStreamRef.current;
+
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  }
+}, [callConnected, currentCallType]);
 
     useEffect(() => {
   if (
@@ -383,42 +399,27 @@ useEffect(() => {
   ],
   });
 
-   peer.ontrack = (event) => {
+  peer.ontrack = (event) => {
   const stream = event.streams[0];
 
-  console.log(
-    "TRACK KIND:",
-    event.track.kind
-  );
+  remoteStreamRef.current = stream;
 
-  if (
-    event.track.kind === "video" &&
-    remoteVideoRef.current
-  ) {
-    console.log(
-      "SETTING REMOTE VIDEO"
-    );
+  console.log("TRACK KIND:", event.track.kind);
 
-    remoteVideoRef.current.srcObject =
-      stream;
+  if (event.track.kind === "video") {
+    console.log("SETTING REMOTE VIDEO");
 
-    remoteVideoRef.current.play()
-      .catch(console.error);
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = stream;
+      remoteVideoRef.current.play().catch(console.error);
+    }
   }
 
-  if (
-    event.track.kind === "audio" &&
-    remoteAudioRef.current
-  ) {
-    console.log(
-      "SETTING REMOTE AUDIO"
-    );
-
-    remoteAudioRef.current.srcObject =
-      stream;
-
-    remoteAudioRef.current.play()
-      .catch(console.error);
+  if (event.track.kind === "audio") {
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = stream;
+      remoteAudioRef.current.play().catch(console.error);
+    }
   }
 };
         peer.onicecandidate = (event) => {
@@ -1285,21 +1286,19 @@ const stopRecording = () => {
                             </div>
                             {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
-                                    <video
+                                   <video
   ref={remoteVideoRef}
   autoPlay
   playsInline
-  muted={false}
   className="h-full w-full object-cover"
   onLoadedMetadata={() =>
-    console.log(
-      "REMOTE VIDEO LOADED"
-    )
+    console.log("REMOTE VIDEO LOADED")
   }
   onPlaying={() =>
-    console.log(
-      "REMOTE VIDEO PLAYING"
-    )
+    console.log("REMOTE VIDEO PLAYING")
+  }
+  onCanPlay={() =>
+    console.log("REMOTE VIDEO CANPLAY")
   }
 />
 
