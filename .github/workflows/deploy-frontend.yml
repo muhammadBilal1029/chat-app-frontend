@@ -1,33 +1,31 @@
 name: Deploy Frontend to AWS
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-```
-steps:
-  - name: Deploy to EC2
-    uses: appleboy/ssh-action@v1.2.0
-    with:
-      host: ${{ secrets.AWS_HOST }}
-      username: ubuntu
-      key: ${{ secrets.AWS_SSH_KEY }}
-      port: 22
-      script: |
-        cd /home/ubuntu/chat-app-frontend
+    steps:
+        - name: Deploy to EC2
+          uses: appleboy/ssh-action@v1.2.0
+          with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          port: 22
+          script: |
+              cd /home/ubuntu/chat-app-frontend
 
-        git pull origin main
+              git pull origin main
 
-        npm install
+              npm install
 
-        npm run build
+              npm run build
 
-        pm2 restart chat-app-frontend
+              pm2 restart chat-app-frontend
 
-        pm2 save
-```
+              pm2 save
