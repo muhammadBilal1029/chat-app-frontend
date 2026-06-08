@@ -20,7 +20,7 @@ jobs:
               script: |
                     cd /home/ubuntu/chat-app-frontend
 
-                    git pull origin main
+                    git pull
 
                     npm install
 
