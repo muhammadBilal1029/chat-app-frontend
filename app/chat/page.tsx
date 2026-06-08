@@ -163,7 +163,7 @@ setCallConnected(false);
      socket.on('iceCandidate', async (candidate) => {
          console.log(
     'RECEIVED ICE',
-    candidate.usernameFragment
+    candidate.usernameFragment || 'END'
   );
 
   console.log(
@@ -171,6 +171,7 @@ setCallConnected(false);
     peerRef.current?.remoteDescription?.sdp.match(
       /a=ice-ufrag:(.*)/,
     )?.[1]
+    || 'NO_REMOTE_DESC'
   );
   try {
    
