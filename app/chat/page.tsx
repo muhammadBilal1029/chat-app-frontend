@@ -400,7 +400,8 @@ useEffect(() => {
 
   peer.ontrack = (event) => {
   const stream = event.streams[0];
-console.log(
+
+  console.log(
     "STREAM VIDEO TRACKS:",
     stream.getVideoTracks().length
   );
@@ -410,54 +411,31 @@ console.log(
     stream.getAudioTracks().length
   );
 
-  stream.getVideoTracks().forEach(track => {
-    console.log(
-      "VIDEO TRACK READY STATE:",
-      track.readyState
-    );
-
-    console.log(
-      "VIDEO TRACK ENABLED:",
-      track.enabled
-    );
-  });
   if (
-  remoteStreamRef.current?.id !== stream.id
-) {
-  remoteStreamRef.current = stream;
-  setRemoteStream(stream);
-}
-  console.log("TRACK KIND:", event.track.kind);
+    remoteStreamRef.current?.id !== stream.id
+  ) {
+    remoteStreamRef.current = stream;
+    setRemoteStream(stream);
+  }
 
-  if (event.track.kind === "video") {
-  console.log("VIDEO TRACK RECEIVED");
-
-  console.log(
-    "REMOTE VIDEO REF EXISTS:",
-    !!remoteVideoRef.current
-  );
-
+  // ALWAYS attach stream
   if (remoteVideoRef.current) {
     remoteVideoRef.current.srcObject = stream;
 
-    console.log(
-      "VIDEO ATTACHED"
-    );
-
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  } else {
-    console.log(
-      "VIDEO REF NULL"
-    );
+    remoteVideoRef.current.onloadedmetadata =
+      () => {
+        remoteVideoRef.current
+          ?.play()
+          .catch(console.error);
+      };
   }
-}
 
-  if (event.track.kind === "audio") {
-    if (remoteAudioRef.current) {
-      remoteAudioRef.current.srcObject = stream;
-      remoteAudioRef.current.play().catch(console.error);
-    }
+  if (remoteAudioRef.current) {
+    remoteAudioRef.current.srcObject = stream;
+
+    remoteAudioRef.current
+      .play()
+      .catch(console.error);
   }
 };
         peer.onicecandidate = (event) => {
@@ -1330,7 +1308,6 @@ const stopRecording = () => {
    ref={remoteVideoRef}
   autoPlay
   playsInline
-  muted
   className="h-full w-full object-cover"
   onLoadedMetadata={() =>
     console.log("REMOTE VIDEO LOADED")
