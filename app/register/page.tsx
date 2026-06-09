@@ -59,7 +59,7 @@ export default function RegisterPage() {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
 
-      window.location.href = '/chat';
+      window.location.href = '/verify-email';
     } catch (error: any) {
       console.error('Register error:', error);
       
