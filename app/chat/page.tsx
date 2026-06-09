@@ -1473,64 +1473,63 @@ ${err.message}`
                             <div className="border-t border-gray-200 bg-white p-2 md:p-4 shadow-sm">
 
                                 <div className="flex items-center gap-1 md:gap-3">
+  <input
+    value={text}
+    onChange={(e) => {
+      setText(e.target.value);
 
-                                    <input
-                                        value={text}
-                                        onChange={(e) => {
-                                            setText(e.target.value);
+      socket.emit("typing", {
+        chatId,
+        userId: currentUser.id,
+        name: currentUser.name,
+      });
 
-                                            socket.emit('typing', {
-                                                chatId,
-                                                userId: currentUser.id,
-                                                name: currentUser.name,
-                                            });
-                                            clearTimeout(
-                                                typingTimeout.current,
-                                            );
+      clearTimeout(typingTimeout.current);
 
-                                            typingTimeout.current = setTimeout(() => {
-                                                socket.emit('stopTyping', {
-                                                    chatId,
-                                                    userId: currentUser.id,
-                                                });
-                                            }, 1000);
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                sendMessage();
-                                            }
-                                        }}
-                                        placeholder="Type a message..."
-                                        className="flex-1 rounded-xl border border-gray-300 pl-3  py-2.5 md:py-3 text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                    />
+      typingTimeout.current = setTimeout(() => {
+        socket.emit("stopTyping", {
+          chatId,
+          userId: currentUser.id,
+        });
+      }, 1000);
+    }}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && text.trim()) {
+        sendMessage();
+      }
+    }}
+    placeholder="Type a message..."
+    className="flex-1 rounded-xl border border-gray-300 pl-3 py-2.5 md:py-3 text-gray-900 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+  />
 
-                                    <button
-                                        onClick={sendMessage}
-                                        className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all shadow-md hover:shadow-lg flex-shrink-0"
-                                    >
-                                        <span className="md:hidden text-sm">➤</span>
-                                        <span className="hidden md:inline">Send</span>
-                                    </button>
-                                    {!isRecording ? (
-                                        <button
-                                            onClick={startRecording}
-                                            className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-4 md:py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white transition-all shadow-md hover:shadow-lg flex-shrink-0"
-                                            title="Start Recording"
-                                        >
-                                            <span className="md:hidden text-sm">🎤</span>
-                                            <span className="hidden md:inline">Record</span>
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={stopRecording}
-                                            className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-4 md:py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all shadow-md hover:shadow-lg animate-pulse flex-shrink-0"
-                                            title="Stop Recording"
-                                        >
-                                            <span className="md:hidden text-sm">⏹</span>
-                                            <span className="hidden md:inline">Stop</span>
-                                        </button>
-                                    )}
-                                </div>
+  {isRecording ? (
+    <button
+      onClick={stopRecording}
+      className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-4 md:py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all shadow-md hover:shadow-lg animate-pulse flex-shrink-0"
+      title="Stop Recording"
+    >
+      <span className="md:hidden text-sm">⏹</span>
+      <span className="hidden md:inline">Stop</span>
+    </button>
+  ) : text.trim() ? (
+    <button
+      onClick={sendMessage}
+      className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all shadow-md hover:shadow-lg flex-shrink-0"
+    >
+      <span className="text-sm">➤</span>
+      
+    </button>
+  ) : (
+    <button
+      onClick={startRecording}
+      className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 md:w-auto md:px-4 md:py-3 rounded-xl bg-gray-700 hover:bg-gray-800 text-white transition-all shadow-md hover:shadow-lg flex-shrink-0"
+      title="Start Recording"
+    >
+      <span className="md:hidden text-sm">🎤</span>
+      <span className="hidden md:inline">Record</span>
+    </button>
+  )}
+</div>
                                 <div ref={messagesEndRef} />
                                 <div className="mt-3 flex items-center gap-2">
                                     <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700 text-sm">
