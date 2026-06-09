@@ -48,11 +48,11 @@ export default function ChatPage() {
         useState<number | null>(null);
     const [callConnected, setCallConnected] =
         useState(false);
-        const chatIdRef = useRef('');
+    const chatIdRef = useRef('');
     const [localStream, setLocalStream] =
 
         useState<MediaStream | null>(null);
-        const pendingCandidates = useRef<any[]>([]);
+    const pendingCandidates = useRef<any[]>([]);
     const localVideoRef = useRef<HTMLVideoElement | null>(null);
     const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
     const currentUser =
@@ -62,19 +62,19 @@ export default function ChatPage() {
     const [typingUser, setTypingUser] = useState('');
     const [callType, setCallType] = useState<'audio' | 'video'>('audio');
     const [currentCallType, setCurrentCallType] =
-  useState<'audio' | 'video'>('audio');
+        useState<'audio' | 'video'>('audio');
 
     const currentCallTypeRef =
-  useRef<'audio' | 'video'>('audio');
+        useRef<'audio' | 'video'>('audio');
     const missedCallTimer =
         useRef<any>(null);
-        const recorderRef = useRef<MediaRecorder | null>(null);
-const recordingStreamRef = useRef<MediaStream | null>(null);
-const recordingChunksRef = useRef<Blob[]>([]);
-const [isRecording, setIsRecording] = useState(false);
-const remoteStreamRef = useRef<MediaStream | null>(null);
-const [remoteStream, setRemoteStream] =
-  useState<MediaStream | null>(null);
+    const recorderRef = useRef<MediaRecorder | null>(null);
+    const recordingStreamRef = useRef<MediaStream | null>(null);
+    const recordingChunksRef = useRef<Blob[]>([]);
+    const [isRecording, setIsRecording] = useState(false);
+    const remoteStreamRef = useRef<MediaStream | null>(null);
+    const [remoteStream, setRemoteStream] =
+        useState<MediaStream | null>(null);
     useEffect(() => {
         loadUsers();
 
@@ -110,43 +110,43 @@ const [remoteStream, setRemoteStream] =
 
                 setIncomingCall(null);
                 setCallStatus('');
-setIsCalling(false);
-setCallConnected(false);
+                setIsCalling(false);
+                setCallConnected(false);
                 setCallStatus('Missed Call');
             }, 30000);
         });
         socket.on(
-  'callMissed',
-  (data) => {
-    setIsCalling(false);
-    setCallConnected(false);
+            'callMissed',
+            (data) => {
+                setIsCalling(false);
+                setCallConnected(false);
 
-    peerRef.current?.close();
-    peerRef.current = null;
+                peerRef.current?.close();
+                peerRef.current = null;
 
-    localStream
-      ?.getTracks()
-      .forEach((track) =>
-        track.stop(),
-      );
+                localStream
+                    ?.getTracks()
+                    .forEach((track) =>
+                        track.stop(),
+                    );
 
-    setLocalStream(null);
+                setLocalStream(null);
 
-    setCallStatus(
-      data.callType === 'video'
-        ? 'Video Call Missed'
-        : 'Audio Call Missed',
-    );
+                setCallStatus(
+                    data.callType === 'video'
+                        ? 'Video Call Missed'
+                        : 'Audio Call Missed',
+                );
 
-    loadMessages(
-      chatIdRef.current,
-    );
+                loadMessages(
+                    chatIdRef.current,
+                );
 
-    setTimeout(() => {
-      setCallStatus('');
-    }, 3000);
-  },
-);
+                setTimeout(() => {
+                    setCallStatus('');
+                }, 3000);
+            },
+        );
         socket.on('callAccepted', async (data) => {
 
             setCallStatus('Call Connected');
@@ -157,51 +157,51 @@ setCallConnected(false);
                 new RTCSessionDescription(data.answer),
             );
             for (const candidate of pendingCandidates.current) {
-     await peerRef.current.addIceCandidate(
-    candidate ? new RTCIceCandidate(candidate) : null
-  );
-  }
+                await peerRef.current.addIceCandidate(
+                    candidate ? new RTCIceCandidate(candidate) : null
+                );
+            }
 
-  pendingCandidates.current = [];
+            pendingCandidates.current = [];
         });
-     socket.on('iceCandidate', async (candidate) => {
-         console.log(
-    'RECEIVED ICE',
-    candidate?.usernameFragment || 'END'
-  );
+        socket.on('iceCandidate', async (candidate) => {
+            console.log(
+                'RECEIVED ICE',
+                candidate?.usernameFragment || 'END'
+            );
 
-  console.log(
-    'REMOTE UFRAG',
-    peerRef.current?.remoteDescription?.sdp.match(
-      /a=ice-ufrag:(.*)/,
-    )?.[1]
-    || 'NO_REMOTE_DESC'
-  );
-  try {
-   
+            console.log(
+                'REMOTE UFRAG',
+                peerRef.current?.remoteDescription?.sdp.match(
+                    /a=ice-ufrag:(.*)/,
+                )?.[1]
+                || 'NO_REMOTE_DESC'
+            );
+            try {
 
-    console.log('RECEIVED ICE', candidate);
 
-    if (!peerRef.current) {
-         pendingCandidates.current.push(candidate);
-         return;
-    }
+                console.log('RECEIVED ICE', candidate);
 
-    if (!peerRef.current.remoteDescription) {
-      console.log('QUEUE ICE', candidate);
-      pendingCandidates.current.push(candidate);
-      return;
-    }
+                if (!peerRef.current) {
+                    pendingCandidates.current.push(candidate);
+                    return;
+                }
 
-     await peerRef.current.addIceCandidate(
-    candidate ? new RTCIceCandidate(candidate) : null
-  );
+                if (!peerRef.current.remoteDescription) {
+                    console.log('QUEUE ICE', candidate);
+                    pendingCandidates.current.push(candidate);
+                    return;
+                }
 
-    console.log('ICE ADDED');
-  } catch (error) {
-    console.log('ICE candidate ignored:', error);
-  }
-});
+                await peerRef.current.addIceCandidate(
+                    candidate ? new RTCIceCandidate(candidate) : null
+                );
+
+                console.log('ICE ADDED');
+            } catch (error) {
+                console.log('ICE candidate ignored:', error);
+            }
+        });
 
         socket.on('userStatusChanged', () => {
             loadUsers();
@@ -214,7 +214,7 @@ setCallConnected(false);
             setCallStartTime(null);
             setCallStatus('Call Ended');
             setRemoteStream(null);
-remoteStreamRef.current = null;
+            remoteStreamRef.current = null;
 
             peerRef.current?.close();
             peerRef.current = null;
@@ -237,25 +237,25 @@ remoteStreamRef.current = null;
         });
         socket.on('newMessage', (message) => {
             setMessages((prev) => [...prev, message]);
-              if (message.senderId !== currentUser.id) {
-    socket.emit('messageSeen', {
-      chatId: chatIdRef.current,
-      userId: currentUser.id,
-      messageType: message.type,
-    });
-  }
+            if (message.senderId !== currentUser.id) {
+                socket.emit('messageSeen', {
+                    chatId: chatIdRef.current,
+                    userId: currentUser.id,
+                    messageType: message.type,
+                });
+            }
         });
         socket.on('callRejected', (data) => {
             setIsCalling(false);
             pendingCandidates.current = [];
             setCallConnected(false);
             if (data.callType === 'video') {
-    setCallStatus('Video Call Rejected');
-  } else {
-    setCallStatus('Audio Call Rejected');
-  }
+                setCallStatus('Video Call Rejected');
+            } else {
+                setCallStatus('Audio Call Rejected');
+            }
 
-            
+
             loadMessages(chatId);
             peerRef.current?.close();
             peerRef.current = null;
@@ -280,20 +280,20 @@ remoteStreamRef.current = null;
             setTypingUser('');
         });
 
-       socket.on('messagesSeen', (data) => {
-          console.log('MESSAGES SEEN RECEIVED');
-  console.log(data);
-  setMessages((prev) =>
-    prev.map((msg) =>
-      msg.senderId === currentUser.id
-        ? {
-            ...msg,
-            status: 'seen',
-          }
-        : msg,
-    ),
-  );
-});
+        socket.on('messagesSeen', (data) => {
+            console.log('MESSAGES SEEN RECEIVED');
+            console.log(data);
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg.senderId === currentUser.id
+                        ? {
+                            ...msg,
+                            status: 'seen',
+                        }
+                        : msg,
+                ),
+            );
+        });
         return () => {
             socket.off('incomingCall');
             socket.off('callAccepted');
@@ -331,71 +331,71 @@ remoteStreamRef.current = null;
 
         return () => clearInterval(timer);
     }, [callConnected, callStartTime]);
-useEffect(() => {
-  if (
-    callConnected &&
-    currentCallType === "video" &&
-    remoteVideoRef.current &&
-    remoteStreamRef.current
-  ) {
-    console.log("RESTORING REMOTE STREAM");
-
-    remoteVideoRef.current.srcObject =
-      remoteStreamRef.current;
-
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  }
-}, [callConnected, currentCallType]);
-useEffect(() => {
-  console.log(
-    "VIDEO SCREEN RENDERED",
-    !!remoteVideoRef.current
-  );
-
-  if (
-    remoteVideoRef.current &&
-    remoteStreamRef.current
-  ) {
-    console.log(
-      "REATTACHING VIDEO"
-    );
-
-    remoteVideoRef.current.srcObject =
-      remoteStreamRef.current;
-
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  }
-}, [callConnected, currentCallType]);
     useEffect(() => {
-  if (
-    currentCallType === 'video' &&
-    callConnected &&
-    localStream &&
-    localVideoRef.current
-  ) {
-    localVideoRef.current.srcObject = localStream;
-    localVideoRef.current.play().catch(console.error);
-  }
-}, [currentCallType, callConnected, localStream]);
+        if (
+            callConnected &&
+            currentCallType === "video" &&
+            remoteVideoRef.current &&
+            remoteStreamRef.current
+        ) {
+            console.log("RESTORING REMOTE STREAM");
 
-useEffect(() => {
-  console.log(
-    "REMOTE VIDEO REF",
-    remoteVideoRef.current
-  );
-}, [callConnected]);
+            remoteVideoRef.current.srcObject =
+                remoteStreamRef.current;
 
-useEffect(() => {
-  if (
-    remoteVideoRef.current &&
-    remoteStream
-  ) {
-    remoteVideoRef.current.srcObject =
-      remoteStream;
-  }
-}, [remoteStream]);
+            remoteVideoRef.current.play()
+                .catch(console.error);
+        }
+    }, [callConnected, currentCallType]);
+    useEffect(() => {
+        console.log(
+            "VIDEO SCREEN RENDERED",
+            !!remoteVideoRef.current
+        );
+
+        if (
+            remoteVideoRef.current &&
+            remoteStreamRef.current
+        ) {
+            console.log(
+                "REATTACHING VIDEO"
+            );
+
+            remoteVideoRef.current.srcObject =
+                remoteStreamRef.current;
+
+            remoteVideoRef.current.play()
+                .catch(console.error);
+        }
+    }, [callConnected, currentCallType]);
+    useEffect(() => {
+        if (
+            currentCallType === 'video' &&
+            callConnected &&
+            localStream &&
+            localVideoRef.current
+        ) {
+            localVideoRef.current.srcObject = localStream;
+            localVideoRef.current.play().catch(console.error);
+        }
+    }, [currentCallType, callConnected, localStream]);
+
+    useEffect(() => {
+        console.log(
+            "REMOTE VIDEO REF",
+            remoteVideoRef.current
+        );
+    }, [callConnected]);
+
+    useEffect(() => {
+        if (
+            remoteVideoRef.current &&
+            remoteStream
+        ) {
+            remoteVideoRef.current.srcObject =
+                remoteStream;
+        }
+    }, [remoteStream]);
     const loadUsers = async () => {
         try {
             const res = await api.get('/auth/users');
@@ -413,121 +413,121 @@ useEffect(() => {
     const createPeer = () => {
 
 
-       const peer = new RTCPeerConnection({
-        iceTransportPolicy: 'all',
-    iceServers: [
-        {
-   urls: "stun:turn.chat-app-1029.work.gd:3478"
- },
-   
-    {
-      urls: "turn:turn.chat-app-1029.work.gd:3478?transport=udp",
-      username: "bilal",
-      credential: "BilalTurn123",
-    },
-    {
-      urls: "turn:turn.chat-app-1029.work.gd:3478?transport=tcp",
-      username: "bilal",
-      credential: "BilalTurn123",
-    },
-  ],
-  });
+        const peer = new RTCPeerConnection({
+            iceTransportPolicy: 'all',
+            iceServers: [
+                {
+                    urls: "stun:turn.chat-app-1029.work.gd:3478"
+                },
 
-  peer.ontrack = (event) => {
-  const stream = event.streams[0];
-console.log(
-    "STREAM VIDEO TRACKS:",
-    stream.getVideoTracks().length
-  );
+                {
+                    urls: "turn:turn.chat-app-1029.work.gd:3478?transport=udp",
+                    username: "bilal",
+                    credential: "BilalTurn123",
+                },
+                {
+                    urls: "turn:turn.chat-app-1029.work.gd:3478?transport=tcp",
+                    username: "bilal",
+                    credential: "BilalTurn123",
+                },
+            ],
+        });
 
-  console.log(
-    "STREAM AUDIO TRACKS:",
-    stream.getAudioTracks().length
-  );
+        peer.ontrack = (event) => {
+            const stream = event.streams[0];
+            console.log(
+                "STREAM VIDEO TRACKS:",
+                stream.getVideoTracks().length
+            );
 
-  stream.getVideoTracks().forEach(track => {
-    console.log(
-      "VIDEO TRACK READY STATE:",
-      track.readyState
-    );
+            console.log(
+                "STREAM AUDIO TRACKS:",
+                stream.getAudioTracks().length
+            );
 
-    console.log(
-      "VIDEO TRACK ENABLED:",
-      track.enabled
-    );
-  });
-  if (
-  remoteStreamRef.current?.id !== stream.id
-) {
-  remoteStreamRef.current = stream;
-  setRemoteStream(stream);
-}
-  console.log("TRACK KIND:", event.track.kind);
+            stream.getVideoTracks().forEach(track => {
+                console.log(
+                    "VIDEO TRACK READY STATE:",
+                    track.readyState
+                );
 
-  if (event.track.kind === "video") {
-  console.log("VIDEO TRACK RECEIVED");
+                console.log(
+                    "VIDEO TRACK ENABLED:",
+                    track.enabled
+                );
+            });
+            if (
+                remoteStreamRef.current?.id !== stream.id
+            ) {
+                remoteStreamRef.current = stream;
+                setRemoteStream(stream);
+            }
+            console.log("TRACK KIND:", event.track.kind);
 
-  console.log(
-    "REMOTE VIDEO REF EXISTS:",
-    !!remoteVideoRef.current
-  );
+            if (event.track.kind === "video") {
+                console.log("VIDEO TRACK RECEIVED");
 
-  if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject = stream;
+                console.log(
+                    "REMOTE VIDEO REF EXISTS:",
+                    !!remoteVideoRef.current
+                );
 
-    console.log(
-      "VIDEO ATTACHED"
-    );
+                if (remoteVideoRef.current) {
+                    remoteVideoRef.current.srcObject = stream;
 
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  } else {
-    console.log(
-      "VIDEO REF NULL"
-    );
-  }
-}
+                    console.log(
+                        "VIDEO ATTACHED"
+                    );
 
-  if (event.track.kind === "audio") {
-    if (remoteAudioRef.current) {
-      remoteAudioRef.current.srcObject = stream;
-      remoteAudioRef.current.play().catch(console.error);
-    }
-  }
-};
+                    remoteVideoRef.current.play()
+                        .catch(console.error);
+                } else {
+                    console.log(
+                        "VIDEO REF NULL"
+                    );
+                }
+            }
+
+            if (event.track.kind === "audio") {
+                if (remoteAudioRef.current) {
+                    remoteAudioRef.current.srcObject = stream;
+                    remoteAudioRef.current.play().catch(console.error);
+                }
+            }
+        };
         peer.onicecandidate = (event) => {
             if (!event.candidate || !event.candidate.candidate) {
-  return;
-}
-  if (event.candidate) {
-    console.log(
-      "ICE CANDIDATE:",
-      event.candidate.type,
-      event.candidate.candidate
-    );
-  }
-};
+                return;
+            }
+            if (event.candidate) {
+                console.log(
+                    "ICE CANDIDATE:",
+                    event.candidate.type,
+                    event.candidate.candidate
+                );
+            }
+        };
 
-peer.onicegatheringstatechange = () => {
-  console.log(
-    "ICE GATHERING:",
-    peer.iceGatheringState
-  );
-};
+        peer.onicegatheringstatechange = () => {
+            console.log(
+                "ICE GATHERING:",
+                peer.iceGatheringState
+            );
+        };
         peer.oniceconnectionstatechange = () => {
             console.log(
                 'ICE STATE:',
                 peer.iceConnectionState,
             );
-             console.log(
-    "LOCAL CANDIDATE:",
-    peer.localDescription
-  );
+            console.log(
+                "LOCAL CANDIDATE:",
+                peer.localDescription
+            );
 
-  console.log(
-    "REMOTE CANDIDATE:",
-    peer.remoteDescription
-  );
+            console.log(
+                "REMOTE CANDIDATE:",
+                peer.remoteDescription
+            );
         };
 
         peer.onconnectionstatechange = () => {
@@ -563,9 +563,9 @@ peer.onicegatheringstatechange = () => {
                 setCallStatus('Call Failed');
             }
         };
-peer.onicecandidateerror = (e) => {
-  console.log("ICE ERROR", e);
-};
+        peer.onicecandidateerror = (e) => {
+            console.log("ICE ERROR", e);
+        };
         peerRef.current = peer;
 
         return peer;
@@ -634,201 +634,201 @@ peer.onicecandidateerror = (e) => {
 
     };
     const getMediaStream = async (
-  type: 'audio' | 'video',
-) => {
-  if (
-    typeof navigator === 'undefined' ||
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia
-  ) {
-    alert(
-      'Camera/microphone is not available. Use HTTPS or open this app on localhost/device browser that supports WebRTC.'
-    );
+        type: 'audio' | 'video',
+    ) => {
+        if (
+            typeof navigator === 'undefined' ||
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+            alert(
+                'Camera/microphone is not available. Use HTTPS or open this app on localhost/device browser that supports WebRTC.'
+            );
 
-    throw new Error(
-      'getUserMedia is not available',
-    );
-  }
+            throw new Error(
+                'getUserMedia is not available',
+            );
+        }
 
-  return navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: type === 'video',
-  });
-};
+        return navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: type === 'video',
+        });
+    };
     const callUser = async (type: 'audio' | 'video') => {
         setCallType(type);
         setCurrentCallType(type);
         currentCallTypeRef.current = type;
-        console.log("selectedUser",selectedUser)
+        console.log("selectedUser", selectedUser)
         if (!selectedUser?.socketId) {
             alert('User offline');
             return;
         }
 
         try {
- const stream = await getMediaStream(type);
-console.log(
-  "LOCAL VIDEO TRACKS:",
-  stream.getVideoTracks().length
-);
+            const stream = await getMediaStream(type);
+            console.log(
+                "LOCAL VIDEO TRACKS:",
+                stream.getVideoTracks().length
+            );
 
-console.log(
-  "LOCAL AUDIO TRACKS:",
-  stream.getAudioTracks().length
-);
-  setLocalStream(stream);
-if (
-            type === 'video' &&
-            localVideoRef.current
-        ) {
-            localVideoRef.current.srcObject =
-                stream;
+            console.log(
+                "LOCAL AUDIO TRACKS:",
+                stream.getAudioTracks().length
+            );
+            setLocalStream(stream);
+            if (
+                type === 'video' &&
+                localVideoRef.current
+            ) {
+                localVideoRef.current.srcObject =
+                    stream;
+            }
+            pendingCandidates.current = [];
+
+            peerRef.current?.close();
+            peerRef.current = null;
+            const peer = createPeer();
+
+            peerRef.current = peer;
+            console.log(
+                "LOCAL TRACKS:",
+                stream.getTracks().map(t => ({
+                    kind: t.kind,
+                    enabled: t.enabled
+                }))
+            );
+            stream.getTracks().forEach((track) => {
+                peer.addTrack(track, stream);
+            });
+
+            peer.onicecandidate = (event) => {
+                if (!event.candidate) return;
+                socket.emit('iceCandidate', {
+                    to: selectedUser.socketId,
+                    candidate: event.candidate,
+                });
+            };
+
+            const offer = await peer.createOffer();
+
+            await peer.setLocalDescription(offer);
+            setCallStatus(`Calling ${selectedUser.name}...`);
+            setIsCalling(true);
+            socket.emit('callUser', {
+                callerId: currentUser.id,
+                callerName: currentUser.name,
+                receiverSocketId: selectedUser.socketId,
+                offer,
+                callType: type,
+                chatId,
+            });
+        } catch (error) {
+            console.error(error);
+
+            alert(
+                'Unable to access camera. Please check camera permissions or close other applications using the camera.'
+            );
+
+            return;
         }
-        pendingCandidates.current = [];
 
-peerRef.current?.close();
-peerRef.current = null;
-        const peer = createPeer();
-
-        peerRef.current = peer;
-console.log(
-  "LOCAL TRACKS:",
-  stream.getTracks().map(t => ({
-    kind: t.kind,
-    enabled: t.enabled
-  }))
-);
-        stream.getTracks().forEach((track) => {
-            peer.addTrack(track, stream);
-        });
-
-       peer.onicecandidate = (event) => {
-        if (!event.candidate) return;
-  socket.emit('iceCandidate', {
-    to: selectedUser.socketId,
-    candidate: event.candidate,
-  });
-};
-
-        const offer = await peer.createOffer();
-
-        await peer.setLocalDescription(offer);
-        setCallStatus(`Calling ${selectedUser.name}...`);
-        setIsCalling(true);
-        socket.emit('callUser', {
-            callerId: currentUser.id,
-            callerName: currentUser.name,
-            receiverSocketId: selectedUser.socketId,
-            offer,
-            callType: type,
-            chatId,
-        });
-} catch (error) {
-  console.error(error);
-
-  alert(
-    'Unable to access camera. Please check camera permissions or close other applications using the camera.'
-  );
-
-  return;
-}
-        
     };
     const answerCall = async () => {
-       
 
-peerRef.current?.close();
-peerRef.current = null;
+
+        peerRef.current?.close();
+        peerRef.current = null;
         try {
             console.log('REQUESTING CAMERA...');
-  const stream =
-  await getMediaStream(incomingCall.callType);
-  console.log(
-  "ANSWER VIDEO TRACKS:",
-  stream.getVideoTracks().length
-);
+            const stream =
+                await getMediaStream(incomingCall.callType);
+            console.log(
+                "ANSWER VIDEO TRACKS:",
+                stream.getVideoTracks().length
+            );
 
-console.log(
-  "ANSWER AUDIO TRACKS:",
-  stream.getAudioTracks().length
-);
-    console.log('CAMERA SUCCESS');
+            console.log(
+                "ANSWER AUDIO TRACKS:",
+                stream.getAudioTracks().length
+            );
+            console.log('CAMERA SUCCESS');
 
-  setLocalStream(stream);
+            setLocalStream(stream);
 
-  if (
-    incomingCall.callType === 'video' &&
-    localVideoRef.current
-  ) {
-    localVideoRef.current.srcObject =
-      stream;
-  }
+            if (
+                incomingCall.callType === 'video' &&
+                localVideoRef.current
+            ) {
+                localVideoRef.current.srcObject =
+                    stream;
+            }
 
-        const peer = createPeer();
+            const peer = createPeer();
 
-        peerRef.current = peer;
+            peerRef.current = peer;
 
-        stream.getTracks().forEach((track) => {
-            peer.addTrack(track, stream);
-        });
+            stream.getTracks().forEach((track) => {
+                peer.addTrack(track, stream);
+            });
 
-      peer.onicecandidate = (event) => {
-        if (!event.candidate) return;
-  socket.emit('iceCandidate', {
-    to: incomingCall.callerSocketId,
-    candidate: event.candidate,
-  });
-};
-        await peer.setRemoteDescription(
-            new RTCSessionDescription(
-                incomingCall.offer,
-            ),
-        );
-        for (const candidate of pendingCandidates.current) {
-   await peer.addIceCandidate(
-    candidate ? new RTCIceCandidate(candidate) : null
-  );
-}
+            peer.onicecandidate = (event) => {
+                if (!event.candidate) return;
+                socket.emit('iceCandidate', {
+                    to: incomingCall.callerSocketId,
+                    candidate: event.candidate,
+                });
+            };
+            await peer.setRemoteDescription(
+                new RTCSessionDescription(
+                    incomingCall.offer,
+                ),
+            );
+            for (const candidate of pendingCandidates.current) {
+                await peer.addIceCandidate(
+                    candidate ? new RTCIceCandidate(candidate) : null
+                );
+            }
 
-pendingCandidates.current = [];
+            pendingCandidates.current = [];
 
-        const answer =
-            await peer.createAnswer();
+            const answer =
+                await peer.createAnswer();
 
-        await peer.setLocalDescription(
-            answer,
-        );
+            await peer.setLocalDescription(
+                answer,
+            );
 
-        socket.emit('answerCall', {
-            callerSocketId:
-                incomingCall.callerSocketId,
-            answer,
-        });
-        clearTimeout(missedCallTimer.current);
-        setIncomingCall(null);
-        } catch (err:any) {
-  console.error('CAMERA ERROR');
-  console.error(err);
-  console.error('NAME:', err.name);
-  console.error('MESSAGE:', err.message);
+            socket.emit('answerCall', {
+                callerSocketId:
+                    incomingCall.callerSocketId,
+                answer,
+            });
+            clearTimeout(missedCallTimer.current);
+            setIncomingCall(null);
+        } catch (err: any) {
+            console.error('CAMERA ERROR');
+            console.error(err);
+            console.error('NAME:', err.name);
+            console.error('MESSAGE:', err.message);
 
-  alert(
-    `Camera Error:
+            alert(
+                `Camera Error:
 ${err.name}
 ${err.message}`
-  );
+            );
 
-  return;
-}
+            return;
+        }
     };
 
     const endCall = () => {
 
         peerRef.current?.close();
         peerRef.current = null;
-         pendingCandidates.current = [];
-         setRemoteStream(null);
-remoteStreamRef.current = null;
+        pendingCandidates.current = [];
+        setRemoteStream(null);
+        remoteStreamRef.current = null;
         localStream?.getTracks().forEach(
             track => track.stop(),
         );
@@ -873,55 +873,55 @@ remoteStreamRef.current = null;
     };
 
     const startRecording = async () => {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-  });
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
 
-  recordingStreamRef.current = stream;
-  recordingChunksRef.current = [];
+        recordingStreamRef.current = stream;
+        recordingChunksRef.current = [];
 
-  const recorder = new MediaRecorder(stream);
-  recorderRef.current = recorder;
+        const recorder = new MediaRecorder(stream);
+        recorderRef.current = recorder;
 
-  recorder.ondataavailable = (e) => {
-    if (e.data.size > 0) {
-      recordingChunksRef.current.push(e.data);
-    }
-  };
+        recorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+                recordingChunksRef.current.push(e.data);
+            }
+        };
 
-  recorder.onstop = async () => {
-    const blob = new Blob(recordingChunksRef.current, {
-      type: 'audio/webm',
-    });
+        recorder.onstop = async () => {
+            const blob = new Blob(recordingChunksRef.current, {
+                type: 'audio/webm',
+            });
 
-    const file = new File([blob], 'voice-note.webm', {
-      type: 'audio/webm',
-    });
+            const file = new File([blob], 'voice-note.webm', {
+                type: 'audio/webm',
+            });
 
-    await uploadFile(file);
+            await uploadFile(file);
 
-    recordingStreamRef.current
-      ?.getTracks()
-      .forEach((track) => track.stop());
+            recordingStreamRef.current
+                ?.getTracks()
+                .forEach((track) => track.stop());
 
-    recordingStreamRef.current = null;
-    recorderRef.current = null;
-    recordingChunksRef.current = [];
-    setIsRecording(false);
-  };
+            recordingStreamRef.current = null;
+            recorderRef.current = null;
+            recordingChunksRef.current = [];
+            setIsRecording(false);
+        };
 
-  recorder.start();
-  setIsRecording(true);
-};
+        recorder.start();
+        setIsRecording(true);
+    };
 
-const stopRecording = () => {
-  if (
-    recorderRef.current &&
-    recorderRef.current.state !== 'inactive'
-  ) {
-    recorderRef.current.stop();
-  }
-};
+    const stopRecording = () => {
+        if (
+            recorderRef.current &&
+            recorderRef.current.state !== 'inactive'
+        ) {
+            recorderRef.current.stop();
+        }
+    };
 
 
     const typingTimeout =
@@ -968,7 +968,7 @@ const stopRecording = () => {
                                     clearTimeout(missedCallTimer.current);
                                     socket.emit('rejectCall', {
                                         to: incomingCall.callerSocketId,
-                                       chatId: incomingCall.chatId,
+                                        chatId: incomingCall.chatId,
                                         userId: currentUser.id,
                                         callType: incomingCall.callType,
                                     });
@@ -1196,45 +1196,44 @@ const stopRecording = () => {
                                         <div
                                             key={msg._id || index}
                                             className={`flex ${isMine
-                                                    ? 'justify-end'
-                                                    : 'justify-start'
+                                                ? 'justify-end'
+                                                : 'justify-start'
                                                 }`}
                                         >
 
-                                           {msg.type === 'text' && (
-  <div
-    className={`max-w-[80%] md:max-w-[70%]
+                                            {msg.type === 'text' && (
+                                                <div
+                                                    className={`max-w-[80%] md:max-w-[70%]
       rounded-2xl px-4 py-2 md:px-5 md:py-3
       ${isMine
-        ? 'bg-blue-600 text-white'
-        : 'bg-white text-black border shadow-sm'
-      }`}
-  >
-    <div>{msg.text}</div>
+                                                            ? 'bg-blue-600 text-white'
+                                                            : 'bg-white text-black border shadow-sm'
+                                                        }`}
+                                                >
+                                                    <div>{msg.text}</div>
 
-    <div
-      className={`mt-1 text-center text-[10px] opacity-70 ${
-        isMine ? 'text-white' : 'text-gray-500'
-      }`}
-    >
-      {new Date(msg.createdAt || '').toLocaleTimeString()}
-    </div>
+                                                    <div
+                                                        className={`mt-1 text-center text-[10px] opacity-70 ${isMine ? 'text-white' : 'text-gray-500'
+                                                            }`}
+                                                    >
+                                                        {new Date(msg.createdAt || '').toLocaleTimeString()}
+                                                    </div>
 
-    {isMine && (
-      <div className="text-right text-xs mt-1">
-        {msg.status === 'sent' && '✓'}
+                                                    {isMine && (
+                                                        <div className="text-right text-xs mt-1">
+                                                            {msg.status === 'sent' && '✓'}
 
-{msg.status === 'delivered' && '✓✓'}
+                                                            {msg.status === 'delivered' && '✓✓'}
 
-{msg.status === 'seen' && (
-  <span className="text-blue-400">
-    ✓✓
-  </span>
-)}
-      </div>
-    )}
-  </div>
-)}
+                                                            {msg.status === 'seen' && (
+                                                                <span className="text-blue-400">
+                                                                    ✓✓
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                             {msg.type?.startsWith('image/') && (
                                                 <img
                                                     src={msg.fileUrl}
@@ -1247,25 +1246,25 @@ const stopRecording = () => {
                                                 />
                                             )}
                                             {msg.type?.startsWith('audio/') && (
-  <div
-    className={`
+                                                <div
+                                                    className={`
       rounded-2xl p-3
       ${isMine
-        ? 'bg-blue-600'
-        : 'bg-white border'}
+                                                            ? 'bg-blue-600'
+                                                            : 'bg-white border'}
     `}
-  >
-    <div className="mb-2 text-sm text-black">
-      🎤 Voice Message
-    </div>
+                                                >
+                                                    <div className="mb-2 text-sm text-black">
+                                                        🎤 Voice Message
+                                                    </div>
 
-    <audio
-      controls
-      src={msg.fileUrl}
-      className="w-full"
-    />
-  </div>
-)}
+                                                    <audio
+                                                        controls
+                                                        src={msg.fileUrl}
+                                                        className="w-full"
+                                                    />
+                                                </div>
+                                            )}
                                             {msg.type === 'application/pdf' && (
                                                 <div className="max-w-[80%] md:max-w-xs rounded-lg border bg-white p-3 shadow-sm">
                                                     <div className="font-medium text-red-600 text-sm">
@@ -1341,19 +1340,19 @@ const stopRecording = () => {
 
                                             {/* Other Files */}
                                             {msg.fileUrl &&
- !msg.type?.startsWith('image/') &&
- !msg.type?.startsWith('video/') &&
- !msg.type?.startsWith('audio/') &&
- msg.type !== 'application/pdf' && (
-  <a
-    href={msg.fileUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline text-black text-sm"
-  >
-    📎 Download File
-  </a>
-)}
+                                                !msg.type?.startsWith('image/') &&
+                                                !msg.type?.startsWith('video/') &&
+                                                !msg.type?.startsWith('audio/') &&
+                                                msg.type !== 'application/pdf' && (
+                                                    <a
+                                                        href={msg.fileUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="underline text-black text-sm"
+                                                    >
+                                                        📎 Download File
+                                                    </a>
+                                                )}
                                         </div>
                                     );
                                 })}
@@ -1361,26 +1360,26 @@ const stopRecording = () => {
                             </div>
                             {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
-                                   <video
-   ref={remoteVideoRef}
-  autoPlay
-  playsInline
-  muted
-  className="h-full w-full object-cover"
-  onLoadedMetadata={() =>
-    console.log("REMOTE VIDEO LOADED")
-  }
-  onCanPlay={() =>
-    console.log("REMOTE VIDEO CANPLAY")
-  }
-  onPlaying={() =>
-    console.log("REMOTE VIDEO PLAYING")
-  }
-  onError={(e) =>
-    console.log("VIDEO ERROR", e)
-  }
- 
-/>
+                                    <video
+                                        ref={remoteVideoRef}
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                        className="h-full w-full object-cover"
+                                        onLoadedMetadata={() =>
+                                            console.log("REMOTE VIDEO LOADED")
+                                        }
+                                        onCanPlay={() =>
+                                            console.log("REMOTE VIDEO CANPLAY")
+                                        }
+                                        onPlaying={() =>
+                                            console.log("REMOTE VIDEO PLAYING")
+                                        }
+                                        onError={(e) =>
+                                            console.log("VIDEO ERROR", e)
+                                        }
+
+                                    />
 
                                     <video
                                         ref={localVideoRef}
@@ -1461,20 +1460,20 @@ const stopRecording = () => {
                                         Send
                                     </button>
                                     {!isRecording ? (
-  <button
-    onClick={startRecording}
-    className="rounded-lg bg-gray-700 px-4 py-3 text-white"
-  >
-    🎤 Start
-  </button>
-) : (
-  <button
-    onClick={stopRecording}
-    className="rounded-lg bg-red-600 px-4 py-3 text-white"
-  >
-    ⏹ Stop
-  </button>
-)}
+                                        <button
+                                            onClick={startRecording}
+                                            className="rounded-lg bg-gray-700 px-4 py-3 text-white"
+                                        >
+                                            🎤 Start
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={stopRecording}
+                                            className="rounded-lg bg-red-600 px-4 py-3 text-white"
+                                        >
+                                            ⏹ Stop
+                                        </button>
+                                    )}
                                 </div>
                                 <div ref={messagesEndRef} />
                                 <input
