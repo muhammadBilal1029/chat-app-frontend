@@ -317,6 +317,14 @@ export default function ChatPage() {
     }, [messages]);
 
     useEffect(() => {
+        if (selectedUser && messages.length > 0) {
+            messagesEndRef.current?.scrollIntoView({
+                behavior: 'auto',
+            });
+        }
+    }, [selectedUser]);
+
+    useEffect(() => {
         if (!callConnected) return;
 
         const timer = setInterval(() => {
@@ -1530,7 +1538,7 @@ ${err.message}`
                                         <span className="hidden md:inline">Attach File</span>
                                         <input
                                             type="file"
-                                            accept="image/*,video/*,application/pdf"
+                                            accept="*/*"
                                             className="hidden"
                                             onChange={(e) => {
                                                 const file = e.target.files?.[0];
