@@ -386,22 +386,6 @@ useEffect(() => {
     remoteVideoRef.current
   );
 }, [callConnected]);
-useEffect(() => {
-  if (
-    remoteVideoRef.current &&
-    remoteStream
-  ) {
-    console.log(
-      "ATTACHING REMOTE STREAM"
-    );
-
-    remoteVideoRef.current.srcObject =
-      remoteStream;
-
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  }
-}, [remoteStream]);
     const loadUsers = async () => {
         try {
             const res = await api.get('/auth/users');
@@ -1361,7 +1345,7 @@ const stopRecording = () => {
                                 })}
 
                             </div>
-                           {currentCallType === 'video' && (
+                            {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                    <video
    ref={(el) => {
@@ -1374,6 +1358,7 @@ const stopRecording = () => {
   }}
   autoPlay
   playsInline
+  muted
   className="h-full w-full object-cover"
   onLoadedMetadata={() =>
     console.log("REMOTE VIDEO LOADED")
