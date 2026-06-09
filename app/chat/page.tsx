@@ -31,6 +31,10 @@ export default function ChatPage() {
     const peerRef = useRef<RTCPeerConnection | null>(null);
     const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
     const [users, setUsers] = useState<User[]>([]);
+    const [contacts, setContacts] = useState<User[]>([]);
+    const [contactEmail, setContactEmail] = useState('');
+    const [contactMessage, setContactMessage] = useState('');
+    const [showAddContact, setShowAddContact] = useState(false);
     const messagesEndRef =
         useRef<HTMLDivElement | null>(null);
     const [showUsers, setShowUsers] =
@@ -76,7 +80,7 @@ export default function ChatPage() {
     const [remoteStream, setRemoteStream] =
         useState<MediaStream | null>(null);
     useEffect(() => {
-        loadUsers();
+        loadContacts();
 
         socket.connect();
 
@@ -416,6 +420,37 @@ export default function ChatPage() {
 
         } catch (error) {
             console.error(error);
+        }
+    };
+
+    const loadContacts = async () => {
+        try {
+            const res = await api.get('/contact');
+            setContacts(res.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const addContact = async () => {
+        if (!contactEmail.trim()) return;
+
+        try {
+            const res = await api.post('/contact/add', { email: contactEmail });
+            
+            if (res.data.success) {
+                setContactMessage('Contact added successfully');
+                setContactEmail('');
+                loadContacts();
+                setTimeout(() => setContactMessage(''), 3000);
+            } else {
+                setContactMessage(res.data.message);
+                setTimeout(() => setContactMessage(''), 3000);
+            }
+        } catch (error) {
+            console.error(error);
+            setContactMessage('Error adding contact');
+            setTimeout(() => setContactMessage(''), 3000);
         }
     };
     const createPeer = () => {
@@ -1013,16 +1048,62 @@ ${err.message}`
                 >
 
                     <div className="border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700 p-4 md:p-5">
-                        <h1 className="text-2xl md:text-3xl text-white font-bold tracking-tight">
-                            Messages
-                        </h1>
-                        <p className="text-blue-100 text-sm mt-1">
-                            Connect with your team
-                        </p>
+                        <div className="flex items-center justify-between mb-3">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl text-white font-bold tracking-tight">
+                                    Messages
+                                </h1>
+                                <p className="text-blue-100 text-sm mt-1">
+                                    Connect with your team
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowAddContact(!showAddContact)}
+                                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white transition-all"
+                                title="Add Contact"
+                            >
+                                +
+                            </button>
+                        </div>
+                        {showAddContact && (
+                            <div className="mt-3 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="email"
+                                        value={contactEmail}
+                                        onChange={(e) => setContactEmail(e.target.value)}
+                                        placeholder="Enter email to add contact"
+                                        className="flex-1 px-3 py-2 rounded-lg bg-white/90 text-gray-900 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                addContact();
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        onClick={addContact}
+                                        className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium text-sm hover:bg-blue-50 transition-colors"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                                {contactMessage && (
+                                    <p className={`mt-2 text-xs ${contactMessage.includes('successfully') ? 'text-green-200' : 'text-red-200'}`}>
+                                        {contactMessage}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
-                        {users.map((user) => (
+                        {contacts.length === 0 ? (
+                            <div className="p-6 text-center text-gray-500">
+                                <p className="text-sm">No contacts yet</p>
+                                <p className="text-xs mt-1">Add contacts by email to start chatting</p>
+                            </div>
+                        ) : (
+                            contacts.map((user) => (
                             <div
                                 key={user._id}
                                 onClick={() => startChat(user)}
@@ -1068,7 +1149,8 @@ ${err.message}`
 
                                 </div>
                             </div>
-                        ))}
+                        ))
+                        )}
                     </div>
 
                 </div>
