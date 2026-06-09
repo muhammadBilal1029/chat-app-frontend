@@ -30,7 +30,6 @@ interface Message {
 export default function ChatPage() {
     const peerRef = useRef<RTCPeerConnection | null>(null);
     const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
-    const [users, setUsers] = useState<User[]>([]);
     const [contacts, setContacts] = useState<User[]>([]);
     const [contactEmail, setContactEmail] = useState('');
     const [contactMessage, setContactMessage] = useState('');
@@ -208,7 +207,7 @@ export default function ChatPage() {
         });
 
         socket.on('userStatusChanged', () => {
-            loadUsers();
+            loadContacts();
         });
         socket.on('callEnded', () => {
 
@@ -408,20 +407,6 @@ export default function ChatPage() {
                 remoteStream;
         }
     }, [remoteStream]);
-    const loadUsers = async () => {
-        try {
-            const res = await api.get('/auth/users');
-
-            setUsers(
-                res.data.filter(
-                    (user: User) => user._id !== currentUser.id,
-                ),
-            );
-
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     const loadContacts = async () => {
         try {
