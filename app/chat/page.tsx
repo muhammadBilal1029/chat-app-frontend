@@ -331,8 +331,43 @@ remoteStreamRef.current = null;
 
         return () => clearInterval(timer);
     }, [callConnected, callStartTime]);
+useEffect(() => {
+  if (
+    callConnected &&
+    currentCallType === "video" &&
+    remoteVideoRef.current &&
+    remoteStreamRef.current
+  ) {
+    console.log("RESTORING REMOTE STREAM");
 
+    remoteVideoRef.current.srcObject =
+      remoteStreamRef.current;
 
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  }
+}, [callConnected, currentCallType]);
+useEffect(() => {
+  console.log(
+    "VIDEO SCREEN RENDERED",
+    !!remoteVideoRef.current
+  );
+
+  if (
+    remoteVideoRef.current &&
+    remoteStreamRef.current
+  ) {
+    console.log(
+      "REATTACHING VIDEO"
+    );
+
+    remoteVideoRef.current.srcObject =
+      remoteStreamRef.current;
+
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  }
+}, [callConnected, currentCallType]);
     useEffect(() => {
   if (
     currentCallType === 'video' &&
@@ -345,20 +380,20 @@ remoteStreamRef.current = null;
   }
 }, [currentCallType, callConnected, localStream]);
 
-
+useEffect(() => {
+  console.log(
+    "REMOTE VIDEO REF",
+    remoteVideoRef.current
+  );
+}, [callConnected]);
 
 useEffect(() => {
   if (
     remoteVideoRef.current &&
     remoteStream
   ) {
-     const video = remoteVideoRef.current;
-
-    video.srcObject = remoteStream;
-
-    video.onloadedmetadata = () => {
-      video.play().catch(console.error);
-    };
+    remoteVideoRef.current.srcObject =
+      remoteStream;
   }
 }, [remoteStream]);
     const loadUsers = async () => {
@@ -400,8 +435,7 @@ useEffect(() => {
 
   peer.ontrack = (event) => {
   const stream = event.streams[0];
-
-  console.log(
+console.log(
     "STREAM VIDEO TRACKS:",
     stream.getVideoTracks().length
   );
@@ -411,31 +445,54 @@ useEffect(() => {
     stream.getAudioTracks().length
   );
 
-  if (
-    remoteStreamRef.current?.id !== stream.id
-  ) {
-    remoteStreamRef.current = stream;
-    setRemoteStream(stream);
-  }
+  stream.getVideoTracks().forEach(track => {
+    console.log(
+      "VIDEO TRACK READY STATE:",
+      track.readyState
+    );
 
-  // ALWAYS attach stream
+    console.log(
+      "VIDEO TRACK ENABLED:",
+      track.enabled
+    );
+  });
+  if (
+  remoteStreamRef.current?.id !== stream.id
+) {
+  remoteStreamRef.current = stream;
+  setRemoteStream(stream);
+}
+  console.log("TRACK KIND:", event.track.kind);
+
+  if (event.track.kind === "video") {
+  console.log("VIDEO TRACK RECEIVED");
+
+  console.log(
+    "REMOTE VIDEO REF EXISTS:",
+    !!remoteVideoRef.current
+  );
+
   if (remoteVideoRef.current) {
     remoteVideoRef.current.srcObject = stream;
 
-    remoteVideoRef.current.onloadedmetadata =
-      () => {
-        remoteVideoRef.current
-          ?.play()
-          .catch(console.error);
-      };
-  }
+    console.log(
+      "VIDEO ATTACHED"
+    );
 
-  if (remoteAudioRef.current) {
-    remoteAudioRef.current.srcObject = stream;
-
-    remoteAudioRef.current
-      .play()
+    remoteVideoRef.current.play()
       .catch(console.error);
+  } else {
+    console.log(
+      "VIDEO REF NULL"
+    );
+  }
+}
+
+  if (event.track.kind === "audio") {
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = stream;
+      remoteAudioRef.current.play().catch(console.error);
+    }
   }
 };
         peer.onicecandidate = (event) => {
@@ -1308,6 +1365,7 @@ const stopRecording = () => {
    ref={remoteVideoRef}
   autoPlay
   playsInline
+  muted
   className="h-full w-full object-cover"
   onLoadedMetadata={() =>
     console.log("REMOTE VIDEO LOADED")
