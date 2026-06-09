@@ -1540,12 +1540,10 @@ ${err.message}`
                                             type="file"
                                             accept="*/*"
                                             className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    uploadFile(file);
-                                                }
-                                            }}
+                                             onChange={(e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(uploadFile);
+  }}
                                         />
                                     </label>
                                 </div>
