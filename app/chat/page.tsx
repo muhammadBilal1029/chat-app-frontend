@@ -73,6 +73,8 @@ const recordingStreamRef = useRef<MediaStream | null>(null);
 const recordingChunksRef = useRef<Blob[]>([]);
 const [isRecording, setIsRecording] = useState(false);
 const remoteStreamRef = useRef<MediaStream | null>(null);
+const [remoteStream, setRemoteStream] =
+  useState<MediaStream | null>(null);
     useEffect(() => {
         loadUsers();
 
@@ -211,6 +213,8 @@ setCallConnected(false);
             setCallDuration(0);
             setCallStartTime(null);
             setCallStatus('Call Ended');
+            setRemoteStream(null);
+remoteStreamRef.current = null;
 
             peerRef.current?.close();
             peerRef.current = null;
@@ -423,7 +427,7 @@ useEffect(() => {
   const stream = event.streams[0];
 
   remoteStreamRef.current = stream;
-
+setRemoteStream(stream);
   console.log("TRACK KIND:", event.track.kind);
 
   if (event.track.kind === "video") {
@@ -789,6 +793,8 @@ ${err.message}`
         peerRef.current?.close();
         peerRef.current = null;
          pendingCandidates.current = [];
+         setRemoteStream(null);
+remoteStreamRef.current = null;
         localStream?.getTracks().forEach(
             track => track.stop(),
         );
@@ -1322,7 +1328,14 @@ const stopRecording = () => {
                             {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                    <video
-  ref={remoteVideoRef}
+   ref={(el) => {
+    remoteVideoRef.current = el;
+
+    if (el && remoteStream) {
+      el.srcObject = remoteStream;
+      el.play().catch(console.error);
+    }
+  }}
   autoPlay
   playsInline
   muted
