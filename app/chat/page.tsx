@@ -1538,6 +1538,7 @@ ${err.message}`
                                         <span className="hidden md:inline">Attach File</span>
                                         <input
                                             type="file"
+                                            multiple
                                             accept="*/*"
                                             className="hidden"
                                             onChange={(e) => {
