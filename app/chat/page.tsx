@@ -425,7 +425,27 @@ useEffect(() => {
 
   peer.ontrack = (event) => {
   const stream = event.streams[0];
+console.log(
+    "STREAM VIDEO TRACKS:",
+    stream.getVideoTracks().length
+  );
 
+  console.log(
+    "STREAM AUDIO TRACKS:",
+    stream.getAudioTracks().length
+  );
+
+  stream.getVideoTracks().forEach(track => {
+    console.log(
+      "VIDEO TRACK READY STATE:",
+      track.readyState
+    );
+
+    console.log(
+      "VIDEO TRACK ENABLED:",
+      track.enabled
+    );
+  });
   remoteStreamRef.current = stream;
 setRemoteStream(stream);
   console.log("TRACK KIND:", event.track.kind);
@@ -1343,12 +1363,16 @@ const stopRecording = () => {
   onLoadedMetadata={() =>
     console.log("REMOTE VIDEO LOADED")
   }
-  onPlaying={() =>
-    console.log("REMOTE VIDEO PLAYING")
-  }
   onCanPlay={() =>
     console.log("REMOTE VIDEO CANPLAY")
   }
+  onPlaying={() =>
+    console.log("REMOTE VIDEO PLAYING")
+  }
+  onError={(e) =>
+    console.log("VIDEO ERROR", e)
+  }
+ 
 />
 
                                     <video
