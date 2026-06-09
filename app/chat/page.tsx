@@ -427,13 +427,28 @@ useEffect(() => {
   console.log("TRACK KIND:", event.track.kind);
 
   if (event.track.kind === "video") {
-    console.log("SETTING REMOTE VIDEO");
+  console.log("VIDEO TRACK RECEIVED");
 
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = stream;
-      remoteVideoRef.current.play().catch(console.error);
-    }
+  console.log(
+    "REMOTE VIDEO REF EXISTS:",
+    !!remoteVideoRef.current
+  );
+
+  if (remoteVideoRef.current) {
+    remoteVideoRef.current.srcObject = stream;
+
+    console.log(
+      "VIDEO ATTACHED"
+    );
+
+    remoteVideoRef.current.play()
+      .catch(console.error);
+  } else {
+    console.log(
+      "VIDEO REF NULL"
+    );
   }
+}
 
   if (event.track.kind === "audio") {
     if (remoteAudioRef.current) {
