@@ -331,43 +331,8 @@ remoteStreamRef.current = null;
 
         return () => clearInterval(timer);
     }, [callConnected, callStartTime]);
-useEffect(() => {
-  if (
-    callConnected &&
-    currentCallType === "video" &&
-    remoteVideoRef.current &&
-    remoteStreamRef.current
-  ) {
-    console.log("RESTORING REMOTE STREAM");
 
-    remoteVideoRef.current.srcObject =
-      remoteStreamRef.current;
 
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  }
-}, [callConnected, currentCallType]);
-useEffect(() => {
-  console.log(
-    "VIDEO SCREEN RENDERED",
-    !!remoteVideoRef.current
-  );
-
-  if (
-    remoteVideoRef.current &&
-    remoteStreamRef.current
-  ) {
-    console.log(
-      "REATTACHING VIDEO"
-    );
-
-    remoteVideoRef.current.srcObject =
-      remoteStreamRef.current;
-
-    remoteVideoRef.current.play()
-      .catch(console.error);
-  }
-}, [callConnected, currentCallType]);
     useEffect(() => {
   if (
     currentCallType === 'video' &&
@@ -380,12 +345,22 @@ useEffect(() => {
   }
 }, [currentCallType, callConnected, localStream]);
 
+
+
 useEffect(() => {
-  console.log(
-    "REMOTE VIDEO REF",
-    remoteVideoRef.current
-  );
-}, [callConnected]);
+  if (
+    remoteVideoRef.current &&
+    remoteStream
+  ) {
+     const video = remoteVideoRef.current;
+
+    video.srcObject = remoteStream;
+
+    video.onloadedmetadata = () => {
+      video.play().catch(console.error);
+    };
+  }
+}, [remoteStream]);
     const loadUsers = async () => {
         try {
             const res = await api.get('/auth/users');
@@ -446,8 +421,12 @@ console.log(
       track.enabled
     );
   });
+  if (
+  remoteStreamRef.current?.id !== stream.id
+) {
   remoteStreamRef.current = stream;
-setRemoteStream(stream);
+  setRemoteStream(stream);
+}
   console.log("TRACK KIND:", event.track.kind);
 
   if (event.track.kind === "video") {
@@ -1348,14 +1327,7 @@ const stopRecording = () => {
                             {currentCallType === 'video' && callConnected && (
                                 <div className="fixed inset-0 z-50 bg-black p-4">
                                    <video
-   ref={(el) => {
-    remoteVideoRef.current = el;
-
-    if (el && remoteStream) {
-      el.srcObject = remoteStream;
-      el.play().catch(console.error);
-    }
-  }}
+   ref={remoteVideoRef}
   autoPlay
   playsInline
   muted
