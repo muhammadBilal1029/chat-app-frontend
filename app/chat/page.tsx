@@ -1203,11 +1203,7 @@ ${err.message}`
                                             </p>
 
 
-                                            {typingUser && (
-                                                <p className="text-xs text-green-600 font-medium mt-0.5">
-                                                    {typingUser}
-                                                </p>
-                                            )}
+                                            
                                         </div>
                                     </div>
 
@@ -1546,7 +1542,11 @@ ${err.message}`
 
                             {/* Input */}
                             <div className="border-t border-gray-200 bg-white p-2 md:p-4 shadow-sm">
-
+                               {typingUser && (
+                                                <p className="text-xs text-green-600 font-medium mt-0.5">
+                                                    {typingUser}
+                                                </p>
+                                            )}
                                 <div className="flex items-center gap-1 md:gap-3">
   <input
     value={text}
