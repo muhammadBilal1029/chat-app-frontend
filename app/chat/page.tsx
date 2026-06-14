@@ -272,8 +272,8 @@ export default function ChatPage() {
         });
 
         socket.on('userTyping', (data) => {
-            if (data.userId !== currentUser.id) {
-                setTypingUser(`${data.name} is typing...`);
+            if (data.isTyping) {
+                setTypingUser('typing');
                 setTimeout(() => {
                     setTypingUser('');
                 }, 2000);
