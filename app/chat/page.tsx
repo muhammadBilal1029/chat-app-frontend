@@ -239,6 +239,7 @@ export default function ChatPage() {
             }, 2000);
         });
         socket.on('newMessage', (message) => {
+            console.log('newMessage', message);
             setMessages((prev) => [...prev, message]);
             if (message.senderId !== currentUser.id) {
                 socket.emit('messageSeen', {
@@ -412,7 +413,7 @@ export default function ChatPage() {
         try {
             const res = await api.get('/contact');
             const formatted = res.data.map((item: any) => ({
-            _id: item._id,
+            _id: item.contactId._id,
             name: item.contactId?.name || '',
             email: item.contactId?.email || '',
             avatar: item.contactId?.avatar,
@@ -612,7 +613,8 @@ export default function ChatPage() {
         const messagesRes = await api.get(
             `/chat/${id}/history`,
         );
-
+         console.log("chting message ",messagesRes);
+        console.log("chting message ",messagesRes.data);
         setMessages(messagesRes.data);
     };
     const startChat = async (user: User) => {
@@ -628,15 +630,22 @@ export default function ChatPage() {
 
             setChatId(res.data._id);
             chatIdRef.current = res.data._id;
-            socket.emit('messageSeen', {
-                chatId: res.data._id,
-                userId: currentUser.id,
-            });
+           
             socket.emit('joinChat', {
                 chatId: res.data._id,
+            },(ack:any)=>{
+                console.log("joinChat response",ack);
+                 if (ack?.success) {
+        loadMessages(res.data._id);
+        
+          socket.emit('messageSeen', {
+            chatId: res.data._id,
+            userId: currentUser.id,
+        });
+    }
             });
 
-            loadMessages(res.data._id);
+          
         } catch (error) {
             console.error(error);
         }
@@ -1544,7 +1553,14 @@ ${err.message}`
                             <div className="border-t border-gray-200 bg-white p-2 md:p-4 shadow-sm">
                                {typingUser && (
                                                 <p className="text-xs text-green-600 font-medium mt-0.5">
-                                                    {typingUser}
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="flex gap-1">
+                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                        </div>
+                                                        <span className="text-xs text-green-600 font-medium">typing...</span>
+                                                    </div>
                                                 </p>
                                             )}
                                 <div className="flex items-center gap-1 md:gap-3">
