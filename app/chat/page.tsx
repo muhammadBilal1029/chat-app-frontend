@@ -411,7 +411,15 @@ export default function ChatPage() {
     const loadContacts = async () => {
         try {
             const res = await api.get('/contact');
-            setContacts(res.data);
+            const formatted = res.data.map((item: any) => ({
+            _id: item._id,
+            name: item.contactId?.name || '',
+            email: item.contactId?.email || '',
+            avatar: item.contactId?.avatar,
+            isOnline: item.contactId?.isOnline,
+            socketId: item.contactId?.socketId,
+        }));
+            setContacts(formatted);
         } catch (error) {
             console.error(error);
         }
